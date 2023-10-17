@@ -117,6 +117,7 @@
     <Content Include="BlankTemplate\gulpfile.js" />
     <Content Include="BlankTemplate\nucleo-icons.html" />
     <Content Include="HomeWork.txt" />
+    <Content Include="ProjectLayout.txt" />
     <Content Include="SQLScripts\DBScript.sql" />
     <Content Include="SQLScripts\SPs.txt" />
   </ItemGroup>
