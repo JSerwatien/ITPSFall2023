@@ -1,0 +1,6 @@
+﻿Week 1)	
+	Come up with charting metrics for the front page
+	Set up project and database from GIT repo
+		Populate user and department tables
+	Think about additions/functionality that you think would be good to add to the project
+
