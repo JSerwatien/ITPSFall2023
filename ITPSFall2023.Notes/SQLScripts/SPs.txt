@@ -1,4 +1,4 @@
-﻿CREATE   PROCEDURE [dbo].[Front_Page_Data_SEL]
+﻿CREATE OR ALTER   PROCEDURE [dbo].[FrontPageData_SEL] 
 (
        @UserProfileKey INT
 )
@@ -7,156 +7,50 @@ AS
 
 DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 	BEGIN TRY
-		--Is this person IT?
-		DECLARE @DepartmentCode VARCHAR(5)
-		DECLARE @OpenCount INT, @UnassignedCount INT,@HistoricalOpenCount INT, @HistoricalClosedCount INT
-		DECLARE @PastDueCount INT, @DepartmentCount INT
-		SELECT @DepartmentCode = D.DepartmentCode FROM Department D WITH(NOLOCK) 
-			INNER JOIN UserProfile U WITH(NOLOCK)
-			ON D.DepartmentKey = U.DepartmentKey
-		WHERE U.UserProfileKey = @UserProfileKey
+		DECLARE @DepartmentKey INT
+		SELECT @DepartmentKey = DepartmentKey FROM UserProfile WITH(NOLOCK) WHERE UserProfileKey = @UserProfileKey
 
-		SELECT @DepartmentCount = COUNT(*) 
+		SELECT MONTH(CreatedDateTime) TheMonth, COUNT(*) C  FROM Ticket WITH(NOLOCK)
+		WHERE CreatedDateTime> GETDATE()-365
+		GROUP BY MONTH(CreatedDateTime)
+
+		SELECT MONTH(T.CreatedDateTime) TheMonth, COUNT(*) C  
 		FROM Ticket T WITH(NOLOCK)
-			INNER JOIN UserProfile U WITH(NOLOCK)
-			ON U.UserProfileKey = T.UserProfileKey
-			INNER JOIN Status S WITH(NOLOCK)
-			ON S.StatusKey = T.StatusKey
-			INNER JOIN Department D WITH(NOLOCK)
-			ON D.DepartmentKey = U.DepartmentKey
-		WHERE S.ClosedInd = 0
-		AND D.DepartmentCode = @DepartmentCode
+		INNER JOIN UserProfile U WITH(NOLOCK)
+		ON  U.UserProfileKey = T.UserProfileKey
+		INNER JOIN Department D WITH(NOLOCK)
+		ON D.DepartmentKey = U.DepartmentKey
+		WHERE T.CreatedDateTime> GETDATE()-365
+		AND D.DepartmentKey= @DepartmentKey
+		GROUP BY MONTH(T.CreatedDateTime)
 
-		--Is IT?
-		IF @DepartmentCode = 'IT'
-		BEGIN
-			--Get my open tickets
-			SELECT @OpenCount = COUNT(*) 
-			FROM Ticket T WITH(NOLOCK)
-				INNER JOIN UserProfile U WITH(NOLOCK)
-				ON U.UserProfileKey = T.AssignedToUserProfileKey
-				INNER JOIN Status S WITH(NOLOCK)
-				ON S.StatusKey = T.StatusKey
-			WHERE T.AssignedToUserProfileKey = @UserProfileKey
-			AND S.ClosedInd = 0
-			--Get my Unassigned tickets
-			SELECT @UnassignedCount = COUNT(*) 
-			FROM Ticket T WITH(NOLOCK)
-			WHERE ISNULL(AssignedToUserProfileKey,0) = 0
-			--Get historical open tickets
-			SELECT @HistoricalOpenCount = COUNT(*) 
-			FROM Ticket T WITH(NOLOCK)
-				INNER JOIN Status S WITH(NOLOCK)
-				ON S.StatusKey = T.StatusKey
-			WHERE  S.ClosedInd = 0	
-			--Get historical closed tickets
-			SELECT @HistoricalClosedCount = COUNT(*) 
-			FROM Ticket T WITH(NOLOCK)
-				INNER JOIN Status S WITH(NOLOCK)
-				ON S.StatusKey = T.StatusKey
-			WHERE  S.ClosedInd = 1	
-			--Get past due count
-			SELECT @PastDueCount = COUNT(*) FROM Ticket WITH(NOLOCK) WHERE DueDate <=GETDATE()
-			--Return counts
-			SELECT @OpenCount OpenCount, @UnassignedCount UnassignedCount,@HistoricalOpenCount HistoricalOpenCount, @HistoricalClosedCount HistoricalClosedCount,@PastDueCount PastDueCount, @DepartmentCount DepartmentCount
-			--Get my top 10 open ticket
-			SELECT TOP 10 T.*, S.Description Status, S.StatusCode, U.FirstName AssignedToFirstName, U.LastName AssignedToLastName FROM Ticket T WITH(NOLOCK)
-			INNER JOIN UserProfile U WITH(NOLOCK)
-			ON U.UserProfileKey = T.AssignedToUserProfileKey
-			INNER JOIN Status S WITH(NOLOCK)
-			ON S.StatusKey = T.StatusKey
-			WHERE  S.ClosedInd = 0
-			ORDER BY CreatedDateTime
-			--Get my paste due/coming due open ticket
-			SELECT TOP 10 T.*, S.Description Status, S.StatusCode, U.FirstName AssignedToFirstName, U.LastName AssignedToLastName FROM Ticket T WITH(NOLOCK)
-			INNER JOIN UserProfile U WITH(NOLOCK)
-			ON U.UserProfileKey = T.AssignedToUserProfileKey
-			INNER JOIN Status S WITH(NOLOCK)
-			ON S.StatusKey = T.StatusKey
-			WHERE  S.ClosedInd = 0
-			AND T.DueDate < GETDATE()+5 --next 10 days
-			ORDER BY CreatedDateTime
-			--Get monthly open/closed count
-			SELECT MONTH(ISNULL(LastUpdatedDateTime,GETDATE())) TheMonth, Count(*) C 
-			FROM Ticket T WITH(NOLOCK)
-			INNER JOIN Status S WITH(NOLOCK)
-			ON S.StatusKey = T.StatusKey
-			WHERE  S.ClosedInd = 0
-			GROUP BY ISNULL(LastUpdatedDateTime,GETDATE())
-			SELECT MONTH(CreatedDateTime) TheMonth, Count(*) C 
-			FROM Ticket T WITH(NOLOCK)
-			GROUP BY MONTH(CreatedDateTime)
-		END
-		ELSE
-		BEGIN
-			--Get my open tickets
-			SELECT @OpenCount = COUNT(*) 
-			FROM Ticket T WITH(NOLOCK)
-				INNER JOIN UserProfile U WITH(NOLOCK)
-				ON U.UserProfileKey = T.AssignedToUserProfileKey
-				INNER JOIN Status S WITH(NOLOCK)
-				ON S.StatusKey = T.StatusKey
-			WHERE T.UserProfileKey = @UserProfileKey
-			AND S.ClosedInd = 0
-			--Get my Unassigned tickets
-			SELECT @UnassignedCount = COUNT(*) 
-			FROM Ticket T WITH(NOLOCK)
-				INNER JOIN Status S WITH(NOLOCK)
-				ON S.StatusKey = T.StatusKey
-			WHERE T.UserProfileKey = @UserProfileKey
-			AND	ISNULL(T.AssignedToUserProfileKey,0) = 0
-			--Get historical open tickets
-			SELECT @HistoricalOpenCount = COUNT(*) 
-			FROM Ticket T WITH(NOLOCK)
-				INNER JOIN UserProfile U WITH(NOLOCK)
-				ON U.UserProfileKey = T.UserProfileKey
-				INNER JOIN Status S WITH(NOLOCK)
-				ON S.StatusKey = T.StatusKey
-			WHERE  S.ClosedInd = 0	
-			AND U.UserProfileKey = @UserProfileKey
-			--Get historical closed tickets
-			SELECT @HistoricalClosedCount = COUNT(*) 
-			FROM Ticket T WITH(NOLOCK)
-				INNER JOIN UserProfile U WITH(NOLOCK)
-				ON U.UserProfileKey = T.UserProfileKey
-				INNER JOIN Status S WITH(NOLOCK)
-				ON S.StatusKey = T.StatusKey
-			WHERE  S.ClosedInd = 1	
-			AND U.UserProfileKey = @UserProfileKey
-			--Get past due count
-			SELECT @PastDueCount = COUNT(*) 
-			FROM Ticket T WITH(NOLOCK) 
-				INNER JOIN UserProfile U WITH(NOLOCK)
-				ON U.UserProfileKey = T.UserProfileKey
-				INNER JOIN Status S WITH(NOLOCK)
-				ON S.StatusKey = T.StatusKey
-			WHERE DueDate <=GETDATE()
-			AND U.UserProfileKey = @UserProfileKey
-			AND S.StatusCode = 'WAITU'
-			--Return counts
-			SELECT @OpenCount OpenCount, @UnassignedCount UnassignedCount,@HistoricalOpenCount HistoricalOpenCount, @HistoricalClosedCount HistoricalClosedCount,@PastDueCount PastDueCount, @DepartmentCount DepartmentCount
-			--Get my top 10 open ticket
-			SELECT TOP 10 T.*, S.Description Status, S.StatusCode, U.FirstName AssignedToFirstName, U.LastName AssignedToLastName FROM Ticket T WITH(NOLOCK)
-			INNER JOIN UserProfile U WITH(NOLOCK)
-			ON U.UserProfileKey = T.AssignedToUserProfileKey
-			INNER JOIN Status S WITH(NOLOCK)
-			ON S.StatusKey = T.StatusKey
-			WHERE  S.ClosedInd = 0
-			AND U.UserProfileKey = @UserProfileKey
-			ORDER BY CreatedDateTime
-			--Get my paste due/coming due open ticket
-			SELECT TOP 10 T.*, S.Description Status, S.StatusCode, U.FirstName AssignedToFirstName, U.LastName AssignedToLastName FROM Ticket T WITH(NOLOCK)
-			INNER JOIN UserProfile U WITH(NOLOCK)
-			ON U.UserProfileKey = T.AssignedToUserProfileKey
-			INNER JOIN Status S WITH(NOLOCK)
-			ON S.StatusKey = T.StatusKey
-			WHERE  S.ClosedInd = 0
-			AND T.DueDate < GETDATE()+5 --next 10 days
-			AND U.UserProfileKey = @UserProfileKey
-			ORDER BY CreatedDateTime
-		END
+		SELECT TOP 5 T.*, S.Description Status, S.StatusCode, U.FirstName AssignedToFirstName, U.LastName AssignedToLastName
+		FROM Ticket T WITH(NOLOCK)
+		INNER JOIN Status S WITH(NOLOCK)
+		ON S.StatusKey = T.StatusKey
+		INNER JOIN UserProfile U WITH(NOLOCK)
+		ON U.UserProfileKey = T.UserProfileKey
+		WHERE T.AssignedToUserProfileKey = @UserProfileKey
+		AND S.ClosedInd = 0
 
+		SELECT TOP 5 T.*, S.Description Status, S.StatusCode, U.FirstName AssignedToFirstName, U.LastName AssignedToLastName
+		FROM Ticket T WITH(NOLOCK)
+		INNER JOIN Status S WITH(NOLOCK)
+		ON S.StatusKey = T.StatusKey
+		INNER JOIN UserProfile U WITH(NOLOCK)
+		ON U.UserProfileKey = T.UserProfileKey
+		WHERE T.UserProfileKey = @UserProfileKey
+		AND S.StatusCode = 'WAITU'
+		ORDER BY T.CreatedDateTime DESC
 
+		SELECT TOP 5 T.*, S.Description Status, S.StatusCode, U.FirstName AssignedToFirstName, U.LastName AssignedToLastName
+		FROM Ticket T WITH(NOLOCK)
+		INNER JOIN Status S WITH(NOLOCK)
+		ON S.StatusKey = T.StatusKey
+		INNER JOIN UserProfile U WITH(NOLOCK)
+		ON U.UserProfileKey = T.UserProfileKey
+		WHERE T.UserProfileKey = @UserProfileKey
+		ORDER BY T.CreatedDateTime DESC
 	END TRY
 
   BEGIN CATCH

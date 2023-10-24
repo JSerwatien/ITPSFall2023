@@ -42,25 +42,15 @@
 		i)	Credentials
 		ii)	**If time permits, add a "remember me" option
 	b)	Landing page (dashboard)
-		User:
-			i)	Top Row:
-				How many open tickets I have
-				How many open tickets in my department
-				How many tickets I have historically (closed vs open)
-				How many ticket are waiting for me (waiting for user)
-			ii)	Body (side-by-side)
-				Top 10 of my tickets (grid)
-				Coming Due / Over Due tickets (grid)
-		IT:
-			i)	Top row:
-				How many open tickets I have assigned to me
-				How many open tickets are unassigned
-				How many tickets historically (closed vs open; YTD)
-				How many ticket are past due (color-coded: Red if > 0)
-			ii)	Body (side-by-side)
-				Top 10 of my tickets (grid)
-				Coming Due / Over Due tickets (grid)
-			iii)	Tickets open vs closed monthly
+		Top Chart: Monthly count of tickets entered
+		Left side card: Stats (HW)
+		Right side card: Chart of my department vs total tickets entered
+		Bottom left grid:
+			a)	IT: Tickets current open and assigned to me
+			b)	Business: My tickets with status of waiting for user
+		Bottom right grid:
+			My latest tickets
+
 	c)	Request entry
 		i)	AssignedToUserProfileKey (NULL)
 		ii)	Short Description
@@ -172,3 +162,6 @@ DB Rules:
 	Calendar (show how the Due Date drives the UI)
 	Priority
 
+Notes:
+	GitHub:	https://github.com/JSerwatien/ITPSFall2023
+	Template:	https://demos.creative-tim.com/now-ui-dashboard/examples/dashboard.html?_ga=2.217200534.1415108639.1697540512-1924406482.1697540512&_gl=1*g3hltm*_ga*MTkyNDQwNjQ4Mi4xNjk3NTQwNTEy*_ga_LMRL06STSS*MTY5NzU0MDUxMi4xLjEuMTY5NzU0MDU1MC4yMi4wLjA.

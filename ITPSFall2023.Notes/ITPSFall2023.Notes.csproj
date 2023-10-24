@@ -119,6 +119,7 @@
     <Content Include="HomeWork.txt" />
     <Content Include="ProjectLayout.txt" />
     <Content Include="SQLScripts\DBScript.sql" />
+    <Content Include="SQLScripts\Inserts.sql" />
     <Content Include="SQLScripts\SPs.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
