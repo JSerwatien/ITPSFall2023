@@ -20,7 +20,7 @@ namespace ITPSFall2023.Data.Code
             {
                 ds = DataFactory.GetDataSet(strSQL, "FrontPage"); 
                 returnData.MonthlyCount = LoadOpenMonthlyCount(ds.Tables[0]);
-                returnData.DepartmentMonthlyCount = LoadClosedMonthlyCount(ds.Tables[1]);
+                returnData.DepartmentMonthlyCount = LoadOpenMonthlyCount(ds.Tables[1]);
                 returnData.AssignedToMeTickets = new();
                 returnData.WaitingForUserTickets = new();
                 returnData.MostRecentTickets = new();
