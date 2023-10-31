@@ -10,11 +10,11 @@ namespace ITPSFall2023.Data.Code
 {
     public class FrontPageFactory
     {
-        public static FrontPageDataEntity GetFrontPageData(int userProfileKey)
+        public static FrontPageDataEntity GetFrontPageData(UserEntity currentUser)
         {
             DataSet ds = new ();
             FrontPageDataEntity returnData = new FrontPageDataEntity();
-            string strSQL = "EXEC dbo.FrontPageData_SEL " + userProfileKey;
+            string strSQL = "EXEC dbo.FrontPageData_SEL " + currentUser.UserProfileKey;
 
             try
             {
@@ -30,6 +30,7 @@ namespace ITPSFall2023.Data.Code
                 { returnData.WaitingForUserTickets.Add(TicketFactory.LoadSummaryTicketFromDataRow(newRow)); }
                 foreach (DataRow newRow in ds.Tables[4].Rows)
                 { returnData.MostRecentTickets.Add(TicketFactory.LoadSummaryTicketFromDataRow(newRow)); }
+                returnData.PageMessage = "Welcome Back, " + currentUser.DisplayName;
             }
             catch (Exception ex)
             {
@@ -52,6 +53,7 @@ namespace ITPSFall2023.Data.Code
                     newMonth.MonthName = Convert.ToDateTime(newRow["TheMonth"].ToString() + "/1/2000").ToString("mmm");
                     newMonth.MonthNumber = Convert.ToInt16(newRow["TheMonth"]);
                     newMonth.Count = Convert.ToInt32(newRow["C"]);
+                    returnData.Add(newMonth);
                 }
                 return returnData;
             }

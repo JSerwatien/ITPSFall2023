@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E7BFF17A-9BC5-472C-8292-24DDFE1818FF}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>ITPSFall2023.Notes</RootNamespace>
     <AssemblyName>ITPSFall2023.Notes</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -82,6 +85,7 @@
     <None Include="BlankTemplate\LICENSE.md" />
     <None Include="BlankTemplate\package.json" />
     <None Include="BlankTemplate\README.md" />
+    <None Include="Tickets.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="BlankTemplate\assets\css\bootstrap.min.css" />

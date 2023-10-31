@@ -89,6 +89,7 @@ namespace ITPSFall2023.Data.Code
                 returnData.EmailAddress = newRow["EmailAddress"].ToString();
                 returnData.FirstName = newRow["FirstName"].ToString();
                 returnData.LastName = newRow["LastName"].ToString();
+                returnData.DisplayName = returnData.FirstName + " " + returnData.LastName;
                 returnData.Department = newRow["Department"].ToString();
                 returnData.DepartmentCode = newRow["DepartmentCode"].ToString();
                 returnData.DepartmentKey = Convert.ToInt32(newRow["DepartmentKey"]);

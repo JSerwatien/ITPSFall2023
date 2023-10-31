@@ -10,4 +10,9 @@
     <PackageReference Include="Radzen.Blazor" Version="4.18.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ITPSFall2023.Data\ITPSFall2023.Data.csproj" />
+    <ProjectReference Include="..\ITPSFall2023.Entity\ITPSFall2023.Entity.csproj" />
+  </ItemGroup>
+
 </Project>
