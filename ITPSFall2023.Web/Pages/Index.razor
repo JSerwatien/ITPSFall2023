@@ -2,6 +2,8 @@
 @page "/index"
 @inject IJSRuntime JSRuntime
 @using ITPSFall2023.Entity
+@inject Radzen.DialogService dialogService
+
 <div class="row">
     <div class="col-lg-4">
         <div class="card card-chart">
@@ -61,22 +63,9 @@
             </div>
             <div class="card-body">
                 <div class="chart-area">
-                    @if(PageModel!=null)
-                    {
-                    <RadzenChart style="height: 400px">
-                        <RadzenBarSeries Data="@PageModel.MonthlyCount" CategoryProperty="MonthName" Title="Company" LineType="LineType.Dashed" ValueProperty="Count">
-                            <RadzenSeriesDataLabels Visible="true" />
-                        </RadzenBarSeries>
-                        <RadzenBarSeries Data="@PageModel.DepartmentMonthlyCount" CategoryProperty="MonthName" Title="My Department" ValueProperty="Count">
-                            <RadzenSeriesDataLabels Visible="true" />
-                        </RadzenBarSeries>
-                        @*                <RadzenValueAxis Formatter="@FormatAsUSD">
-                        <RadzenGridLines Visible="true" />
-                        <RadzenAxisTitle Text="Revenue in USD" />
-                        </RadzenValueAxis>*@
-                        <RadzenBarOptions Radius="5" Height="20" />
-                    </RadzenChart>
-                    }
+                    <div class="chart-area">
+                        <canvas id="barChartSimpleGradientsNumbers"></canvas>
+                    </div>
                 </div>
             </div>
             <div class="card-footer">
@@ -215,7 +204,7 @@
                         </th>
                         </thead>
                         <tbody>
-                            @foreach(TicketEntity newTicket in PageModel.MostRecentTickets)
+                            @foreach (TicketEntity newTicket in PageModel.MostRecentTickets)
                             {
                                 <tr>
                                     <td>
@@ -250,13 +239,26 @@
 {
     private UserEntity CurrentUser { get; set; }
     private FrontPageDataEntity PageModel { get; set; }
+    private DataItem[] MyTicketData = new DataItem[]
+    {
+        new DataItem()
+    };
+    class DataItem
+    {
+        public string LabelValue{ get; set; }
+        public int ValueValue { get; set; }
+    }
     protected override void OnInitialized()
     {
         CurrentUser = new();
         CurrentUser = ITPSFall2023.Data.Code.UserFactory.GetUserInformation("joshs", "joshs");
 
         PageModel = ITPSFall2023.Data.Code.FrontPageFactory.GetFrontPageData(CurrentUser);
+        SetChartData();
         StateHasChanged();
+    }
+    private void SetChartData()
+    {
     }
     protected override void OnAfterRender(bool firstRender)
     {
@@ -265,6 +267,17 @@
     }
     private async void LoadCharts()
     {
-        await JSRuntime.InvokeVoidAsync("demo.initDashboardPageCharts");
+        string monthString = string.Empty;
+        string companyCount = string.Empty;
+        string myDepartmentCount = string.Empty;
+        foreach (MonthEntity newItem in PageModel.MonthlyCount)
+        {
+            monthString += newItem.MonthName + "|";
+            companyCount += newItem.Count + "|";
+            var myItem = PageModel.DepartmentMonthlyCount.Where(x => x.MonthName == newItem.MonthName);
+            myDepartmentCount += myItem == null ? "0|" : myItem.FirstOrDefault().Count.ToString() + "|";
+        }
+
+        await JSRuntime.InvokeAsync<string>("demo.initDashboardPageCharts", monthString.Substring(0, monthString.Length - 1), companyCount.Substring(0, companyCount.Length - 1), myDepartmentCount.Substring(0, myDepartmentCount.Length - 1));
     }
 }

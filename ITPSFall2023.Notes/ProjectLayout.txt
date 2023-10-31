@@ -174,4 +174,5 @@ Classwork:
 	1)	Add stats to FrontPageEntity
 	2)	Load stats into new properties
 	3)	Finish charts
-	4)	Problem: Validate current user on database request
+	4)	Donut chart
+	5)	Problem: Validate current user on database request

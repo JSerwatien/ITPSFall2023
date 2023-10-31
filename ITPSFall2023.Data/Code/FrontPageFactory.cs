@@ -50,7 +50,7 @@ namespace ITPSFall2023.Data.Code
                 foreach (DataRow newRow in dataTable.Rows)
                 {
                     MonthEntity newMonth = new MonthEntity();
-                    newMonth.MonthName = Convert.ToDateTime(newRow["TheMonth"].ToString() + "/1/2000").ToString("mmm");
+                    newMonth.MonthName = Convert.ToDateTime(newRow["TheMonth"].ToString() + "/1/2000").ToString("MMM");
                     newMonth.MonthNumber = Convert.ToInt16(newRow["TheMonth"]);
                     newMonth.Count = Convert.ToInt32(newRow["C"]);
                     returnData.Add(newMonth);
