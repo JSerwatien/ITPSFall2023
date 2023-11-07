@@ -18,7 +18,7 @@ namespace ITPSFall2023.Data.Code
 
             try
             {
-                ds = DataFactory.GetDataSet(strSQL, "FrontPage"); 
+                ds = DataFactory.GetDataSet(strSQL, "FrontPage", currentUser); 
                 returnData.MonthlyCount = LoadOpenMonthlyCount(ds.Tables[0]);
                 returnData.DepartmentMonthlyCount = LoadOpenMonthlyCount(ds.Tables[1]);
                 returnData.AssignedToMeTickets = new();
@@ -30,6 +30,12 @@ namespace ITPSFall2023.Data.Code
                 { returnData.WaitingForUserTickets.Add(TicketFactory.LoadSummaryTicketFromDataRow(newRow)); }
                 foreach (DataRow newRow in ds.Tables[4].Rows)
                 { returnData.MostRecentTickets.Add(TicketFactory.LoadSummaryTicketFromDataRow(newRow)); }
+                if (ds.Tables[5].Rows.Count > 0) { returnData.TotalTicketCount = Convert.ToInt32(ds.Tables[5].Rows[0][0]); }
+                if (ds.Tables[6].Rows.Count > 0) { returnData.TotalOpenTicketCount = Convert.ToInt32(ds.Tables[6].Rows[0][0]); }
+                if (ds.Tables[7].Rows.Count > 0) { returnData.UserTicketCount = Convert.ToInt32(ds.Tables[7].Rows[0][0]); }
+                if (ds.Tables[8].Rows.Count > 0) { returnData.MyOpenTicketCount = Convert.ToInt32(ds.Tables[8].Rows[0][0]); }
+                if (ds.Tables[9].Rows.Count > 0) { returnData.MyClosedTicketCount = Convert.ToInt32(ds.Tables[9].Rows[0][0]); }
+                returnData.PastDueCountList = LoadStringIntList(ds.Tables[10], "FirstName", "LastName", "NumberPastDueDate");
                 returnData.PageMessage = "Welcome Back, " + currentUser.DisplayName;
             }
             catch (Exception ex)
@@ -39,8 +45,25 @@ namespace ITPSFall2023.Data.Code
             return returnData;
         }
 
-     
-
+        private static List<StringIntEntity> LoadStringIntList(DataTable dataTable, string stringValueField, string stringValueField2, string intValueField)
+        {
+            List<StringIntEntity> returnData = new();
+            try
+            {
+                foreach(DataRow newRow in dataTable.Rows)
+                {
+                    StringIntEntity newItem = new();
+                    newItem.StringValue = string.IsNullOrEmpty(stringValueField2) ? newRow[stringValueField].ToString() : newRow[stringValueField].ToString() + " " + newRow[stringValueField2].ToString();
+                    newItem.IntValue = Convert.ToInt32(newRow[intValueField]);
+                    returnData.Add(newItem);
+                }
+                return returnData;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         private static List<MonthEntity> LoadOpenMonthlyCount(DataTable dataTable)
         {

@@ -104,7 +104,7 @@ demo = {
     });
   },
 
-    initDashboardPageCharts: function (monthString, companyCount, myDepartmentCount) {
+    initDashboardPageCharts: function (monthString, companyCount, myDepartmentCount, totalTicketCount) {
     chartColor = "#FFFFFF";
     // General configuration for the charts with Line gradientStroke
     gradientChartOptionsConfiguration = {
@@ -235,7 +235,7 @@ demo = {
           fill: true,
           backgroundColor: gradientFill,
           borderWidth: 2,
-          data: [50, 150, 100, 190, 130, 90, 150, 160, 120, 140, 190, 95]
+            data: totalTicketCount.split("|")
         }]
       },
       options: {

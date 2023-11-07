@@ -166,13 +166,13 @@ Notes:
 	GitHub:	https://github.com/JSerwatien/ITPSFall2023
 	Template:	https://demos.creative-tim.com/now-ui-dashboard/examples/dashboard.html?_ga=2.217200534.1415108639.1697540512-1924406482.1697540512&_gl=1*g3hltm*_ga*MTkyNDQwNjQ4Mi4xNjk3NTQwNTEy*_ga_LMRL06STSS*MTY5NzU0MDUxMi4xLjEuMTY5NzU0MDU1MC4yMi4wLjA.
 Homework:
-	1)	Add stats SQL to FrontPageData_SEL
-	2)	Add SQL to FrontPageData_SEL that gets count of past-due tickets by department
-	3)	Add bottom-left grid data to page
+	1)	Make stats card look better
+	2)	Add donut chart (https://blazor.radzen.com/donut-chart)
+	3)	Clean up duplicate content (me)
+	4)	Read up on Cascading Parameters(https://chrissainty.com/understanding-cascading-values-and-cascading-parameters/)
+	5)	Review Blowfish changes
 
 Classwork:
-	1)	Add stats to FrontPageEntity
-	2)	Load stats into new properties
-	3)	Finish charts
-	4)	Donut chart
-	5)	Problem: Validate current user on database request
+	1)	Cascading Parameters
+	2)	Login page
+	3)	Start ticket page

@@ -18,5 +18,17 @@ namespace ITPSFall2023.Data.Code
             float output;
             return float.TryParse(s, out output);
         }
+        public static bool IsDate(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                DateTime dt;
+                return (DateTime.TryParse(input, out dt));
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

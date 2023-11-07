@@ -55,14 +55,14 @@ namespace ITPSFall2023.Data.Code
 
             return returnData;
         }
-        public static TicketEntity LoadTicket(int ticketKey)
+        public static TicketEntity LoadTicket(int ticketKey, UserEntity currentUser)
         {
             TicketEntity returnData = new();
             string strSQL = "EXEC dbo.Ticket_SEL " + ticketKey;
             DataSet ds = new();
             try
             {
-                ds = DataFactory.GetDataSet(strSQL, "TicketData");
+                ds = DataFactory.GetDataSet(strSQL, "TicketData", currentUser);
                 if (ds.Tables[0].Rows.Count == 0)
                 { returnData.ErrorObject = new Exception("No ticket was found for ticket ID " + ticketKey); }
                 else
@@ -113,15 +113,15 @@ namespace ITPSFall2023.Data.Code
             string strSQL = GetSaveSQL(theTicket, currentUser);
             try
             {
-                ds = DataFactory.GetDataSet(strSQL, "SaveTicket");
+                ds = DataFactory.GetDataSet(strSQL, "SaveTicket", currentUser);
                 theTicket.TicketKey = Convert.ToInt32(ds.Tables[0].Rows[0][0]);
                 if (theTicket.PreviousAssignedToUserProfileKey != theTicket.AssignedToUserProfileKey)
-                { NotifyAssignee(theTicket); }
+                { NotifyAssignee(currentUser, theTicket); }
                 if (theTicket.PreviousStatusKey != theTicket.StatusKey)
-                { NotifyOwnerOfStatusChange(theTicket, currentUser.StartupObjects.Statuses); }
+                { NotifyOwnerOfStatusChange(theTicket, currentUser.StartupObjects.Statuses, currentUser); }
                 theTicket.PreviousAssignedToUserProfileKey = theTicket.AssignedToUserProfileKey;
                 theTicket.PreviousStatusKey = theTicket.StatusKey;
-                theTicket = LoadTicket(theTicket.TicketKey);
+                theTicket = LoadTicket(theTicket.TicketKey, currentUser);
             }
             catch (Exception ex)
             {
@@ -130,13 +130,13 @@ namespace ITPSFall2023.Data.Code
             return theTicket;
         }
 
-        private static void NotifyOwnerOfStatusChange(TicketEntity theTicket, List<StatusEntity> statusList)
+        private static void NotifyOwnerOfStatusChange(TicketEntity theTicket, List<StatusEntity> statusList, UserEntity currentUser)
         {
             var currentStatus = statusList.Where(x => x.StatusCodeKey == theTicket.StatusKey).FirstOrDefault();
             var previousStatus = statusList.Where(x => x.StatusCodeKey == theTicket.PreviousStatusKey).FirstOrDefault();
             try
             {
-                NotificationFactory.AddNewNotification(theTicket.UserProfileKey, Constants.NotificationType_Alert, "Ticket #<a href='/ticket/" + theTicket.TicketKey + "'>" + theTicket.TicketKey + "</a> had a status change from " + previousStatus.Status + " to " + currentStatus.Status);
+                NotificationFactory.AddNewNotification(theTicket.UserProfileKey, Constants.NotificationType_Alert, "Ticket #<a href='/ticket/" + theTicket.TicketKey + "'>" + theTicket.TicketKey + "</a> had a status change from " + previousStatus.Status + " to " + currentStatus.Status, currentUser);
             }
             catch (Exception ex)
             {
@@ -144,12 +144,12 @@ namespace ITPSFall2023.Data.Code
             }
         }
 
-        private static void NotifyAssignee(TicketEntity theTicket)
+        private static void NotifyAssignee(UserEntity currentUser,TicketEntity theTicket)
         {
             try
             {
-                NotificationFactory.AddNewNotification(theTicket.AssignedToUserProfileKey, Constants.NotificationType_Alert, "Ticket #<a href='/ticket/" + theTicket.TicketKey + "'>" + theTicket.TicketKey + "</a> has been assigned to you.");
-                if (theTicket.PreviousAssignedToUserProfileKey > 0) { NotificationFactory.AddNewNotification(theTicket.PreviousAssignedToUserProfileKey, Constants.NotificationType_Alert, "Ticket #<a href='/ticket/" + theTicket.TicketKey + "'>" + theTicket.TicketKey + "</a> has been re-assigned to someone else."); }
+                NotificationFactory.AddNewNotification(theTicket.AssignedToUserProfileKey, Constants.NotificationType_Alert, "Ticket #<a href='/ticket/" + theTicket.TicketKey + "'>" + theTicket.TicketKey + "</a> has been assigned to you.", currentUser);
+                if (theTicket.PreviousAssignedToUserProfileKey > 0) { NotificationFactory.AddNewNotification(theTicket.PreviousAssignedToUserProfileKey, Constants.NotificationType_Alert, "Ticket #<a href='/ticket/" + theTicket.TicketKey + "'>" + theTicket.TicketKey + "</a> has been re-assigned to someone else.", currentUser); }
             }
             catch (Exception ex)
             {
@@ -166,14 +166,14 @@ namespace ITPSFall2023.Data.Code
                     theTicket.Priority, theTicket.StatusKey == 0 ? openStatus.StatusCodeKey : theTicket.StatusKey, theTicket.DueDate, currentUser.UserName);
             return returnData;
         }
-        public static List<TicketEntity> GetReportData()
+        public static List<TicketEntity> GetReportData(UserEntity currentUser)
         {
             List<TicketEntity> returnData = new();
             string strSQL = "EXEC dbo.GetReportingData";
             DataSet ds = new();
             try
             {
-                ds = DataFactory.GetDataSet(strSQL, "TicketReport");
+                ds = DataFactory.GetDataSet(strSQL, "TicketReport", currentUser);
                 foreach(DataRow newRow in ds.Tables[0].Rows)
                 {
                     returnData.Add(LoadSummaryTicketFromDataRow(newRow));
@@ -187,7 +187,7 @@ namespace ITPSFall2023.Data.Code
             return returnData;
         }
 
-        public static List<int> GetTicketByDescription(string desc)
+        public static List<int> GetTicketByDescription(string desc, UserEntity currentUser)
         {
             List<int> returnData = new();
             string strSQL = "exec dbo.Ticket_SELKeyByDescription '{0}'";
@@ -195,7 +195,7 @@ namespace ITPSFall2023.Data.Code
             try
             {
                 strSQL = string.Format(strSQL, desc.Replace("'", "''"));
-                ds = DataFactory.GetDataSet(strSQL, "tableKeys");
+                ds = DataFactory.GetDataSet(strSQL, "tableKeys", currentUser);
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
                     returnData.Add(Convert.ToInt32(dr["TicketKey"]));
@@ -209,14 +209,14 @@ namespace ITPSFall2023.Data.Code
             }
 
         }
-        public static List<TicketEntity> GetScheduleData()
+        public static List<TicketEntity> GetScheduleData(UserEntity currentUser)
         {
             List<TicketEntity> returnData = new();
             string strSQL = "EXEC dbo.Ticket_SELDueDate";
             DataSet ds = new();
             try
             {
-                ds = DataFactory.GetDataSet(strSQL, "TicketDueDate");
+                ds = DataFactory.GetDataSet(strSQL, "TicketDueDate", currentUser);
                 foreach (DataRow row in ds.Tables[0].Rows)
                 {
                     TicketEntity newItem = new();
@@ -232,27 +232,27 @@ namespace ITPSFall2023.Data.Code
             }
             return returnData;
         }
-        public static void RemoveNote(int noteKey)
+        public static void RemoveNote(int noteKey, UserEntity currentUser)
         {
             string strSQL = "EXEC dbo.Note_UPTActiveInd {0},{1}";
             try
             {
                 strSQL = string.Format(strSQL, noteKey, 0);
-                DataFactory.GetDataSet(strSQL, "RemoveNote");
+                DataFactory.GetDataSet(strSQL, "RemoveNote", currentUser);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        public static OverviewReportEntity GetOverviewReportData()
+        public static OverviewReportEntity GetOverviewReportData(UserEntity currentUser)
         {
             OverviewReportEntity returnData = new();
             string strSQL = "EXEC dbo.GetOverviewReportData";
             try
             {
                 returnData.DetailData = new();
-                returnData.RawData = DataFactory.GetDataSet(strSQL, "OverviewData");
+                returnData.RawData = DataFactory.GetDataSet(strSQL, "OverviewData", currentUser);
                 foreach(DataRow newRow in returnData.RawData.Tables[2].Rows)
                 { returnData.DetailData.Add(LoadSummaryTicketFromDataRow(newRow)); }
                 returnData.AssignedToData = LoadOverviewChartList(returnData.RawData.Tables[0]);

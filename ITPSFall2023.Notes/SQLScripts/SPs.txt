@@ -1,18 +1,25 @@
-﻿CREATE OR ALTER   PROCEDURE [dbo].[FrontPageData_SEL] 
+﻿CREATE OR ALTER     PROCEDURE [dbo].[FrontPageData_SEL]
 (
        @UserProfileKey INT
+     
 )
 
 AS
 
-DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
-	BEGIN TRY
+		DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
+		BEGIN TRY
 		DECLARE @DepartmentKey INT
 		SELECT @DepartmentKey = DepartmentKey FROM UserProfile WITH(NOLOCK) WHERE UserProfileKey = @UserProfileKey
 
-		SELECT MONTH(CreatedDateTime) TheMonth, COUNT(*) C  FROM Ticket WITH(NOLOCK)
-		WHERE CreatedDateTime> GETDATE()-365
-		GROUP BY MONTH(CreatedDateTime)
+		SELECT value TheMonth, 0 C INTO #M FROM STRING_SPLIT('1,2,3,4,5,6,7,8,9,10,11,12',',')
+		
+		UPDATE M
+		SET M.C = C.C
+		FROM #M M INNER JOIN (SELECT MONTH(CreatedDateTime) TheMonth, COUNT(*) C  FROM Ticket WITH(NOLOCK)
+								WHERE CreatedDateTime> GETDATE()-365
+								GROUP BY MONTH(CreatedDateTime)) C
+					ON M.TheMonth = C.TheMonth
+		SELECT * FROM #M
 
 		SELECT MONTH(T.CreatedDateTime) TheMonth, COUNT(*) C  
 		FROM Ticket T WITH(NOLOCK)
@@ -29,7 +36,7 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 		INNER JOIN Status S WITH(NOLOCK)
 		ON S.StatusKey = T.StatusKey
 		INNER JOIN UserProfile U WITH(NOLOCK)
-		ON U.UserProfileKey = T.UserProfileKey
+		ON U.UserProfileKey = T.AssignedToUserProfileKey
 		WHERE T.AssignedToUserProfileKey = @UserProfileKey
 		AND S.ClosedInd = 0
 
@@ -38,7 +45,7 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 		INNER JOIN Status S WITH(NOLOCK)
 		ON S.StatusKey = T.StatusKey
 		INNER JOIN UserProfile U WITH(NOLOCK)
-		ON U.UserProfileKey = T.UserProfileKey
+		ON U.UserProfileKey = T.AssignedToUserProfileKey
 		WHERE T.UserProfileKey = @UserProfileKey
 		AND S.StatusCode = 'WAITU'
 		ORDER BY T.CreatedDateTime DESC
@@ -48,10 +55,52 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 		INNER JOIN Status S WITH(NOLOCK)
 		ON S.StatusKey = T.StatusKey
 		INNER JOIN UserProfile U WITH(NOLOCK)
-		ON U.UserProfileKey = T.UserProfileKey
+		ON U.UserProfileKey = T.AssignedToUserProfileKey
 		WHERE T.UserProfileKey = @UserProfileKey
 		ORDER BY T.CreatedDateTime DESC
-	END TRY
+
+        SELECT COUNT(*)AS CompanyNumber FROM dbo.Ticket T WITH(NOLOCK)
+
+        SELECT COUNT(*) AS OpenCompanyTickets FROM dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.Status S WITH(NOLOCK)
+        ON T.StatusKey=S.StatusKey
+        WHERE S.ClosedInd=0
+
+        select count(*) AS NumberUserTickets
+        From dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.UserProfile U WITH(NOLOCK)
+        ON T.AssignedToUserProfileKey = U.UserProfileKey
+        WHERE U.UserProfileKey = @UserProfileKey
+
+        select count(*) AS MyOpenTickets
+        From dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.UserProfile U WITH(NOLOCK)
+        ON T.AssignedToUserProfileKey = U.UserProfileKey
+        INnER JOIN dbo.Status S WITH(NOLOCK)
+        ON T.StatusKey = S.StatusCode
+        WHERE U.UserProfileKey = @UserProfileKey
+        AND T.StatusKey = 0
+
+        select count(*) AS MyCloseTickets
+        From dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.UserProfile U WITH(NOLOCK)
+        ON T.AssignedToUserProfileKey = U.UserProfileKey
+        INnER JOIN dbo.Status S WITH(NOLOCK)
+        ON T.StatusKey = S.StatusKey
+        WHERE U.UserProfileKey = @UserProfileKey
+        AND S.StatusCode = 'CMPLT'
+
+       SELECT U.FirstName, U.LastName, count(*) AS NumberPastDueDate
+        FROM dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.UserProfile U WITH(NOLOCK)
+        ON T.AssignedToUserProfileKey = U.UserProfileKey
+        INNER JOIN dbo.Status S WITH(NOLOCK)
+        ON t.StatusKey = s.StatusKey
+        WHERE (s.ClosedInd = 0
+        AND GETDATE() > T.DueDate)
+        OR (T.DueDate > T.DateCompleted)
+        GROUP BY U.FirstName, U.LastName
+END TRY
 
   BEGIN CATCH
            DECLARE @ErrorNumber INT,  @ErrorSeverity INT,
@@ -78,7 +127,6 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
                   RAISERROR (@ErrorMessage, @ErrorSeverity,
                                    1,@ErrorNumber,@ErrorSeverity,@ErrorState,@ErrorProcedure,@ErrorLine);
 END CATCH
-
 GO
 
 CREATE PROCEDURE [dbo].[GetOverviewReportData]

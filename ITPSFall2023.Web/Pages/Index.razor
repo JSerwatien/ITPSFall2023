@@ -42,10 +42,11 @@
             </div>
             <div class="card-body" style="height:215px">
                 <ul>
-                    <li>Stat  1</li>
-                    <li>Stat  2</li>
-                    <li>Stat  3</li>
-                    <li>Stat  4</li>
+                    <li>Total Company Tickets: @PageModel.TotalTicketCount</li>
+                    <li>Total Open Tickets: @PageModel.TotalOpenTicketCount</li>
+                    <li>My Tickets: @PageModel.UserTicketCount</li>
+                    <li>My Open Tickets: @PageModel.MyOpenTicketCount</li>
+                    <li>My Closed Tickets: @PageModel.MyClosedTicketCount</li>
                 </ul>
             </div>
             <div class="card-footer">
@@ -80,97 +81,57 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-category">All Persons List</h5>
-                <h4 class="card-title"> Employees Stats</h4>
+                <h5 class="card-category">Open Tickets</h5>
+                @if (CurrentUser.DepartmentCode.ToUpper() == "IT")
+                {
+                    <h4 class="card-title"> Tickets Assigned To Me</h4>
+                }
+                else
+                {
+                    <h4 class="card-title"> Waiting For My Response</h4>
+                }
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table">
                         <thead class=" text-primary">
                         <th>
-                            Name
+                            Ticket ID
                         </th>
                         <th>
-                            Country
+                            Description
                         </th>
                         <th>
-                            City
+                            Due Date
                         </th>
-                        <th class="text-right">
-                            Salary
+                        <th>
+                            Status
+                        </th>
+                        <th>
+                            Assigned To
                         </th>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>
-                                    Dakota Rice
-                                </td>
-                                <td>
-                                    Niger
-                                </td>
-                                <td>
-                                    Oud-Turnhout
-                                </td>
-                                <td class="text-right">
-                                    $36,738
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Minerva Hooper
-                                </td>
-                                <td>
-                                    Curaçao
-                                </td>
-                                <td>
-                                    Sinaai-Waas
-                                </td>
-                                <td class="text-right">
-                                    $23,789
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Sage Rodriguez
-                                </td>
-                                <td>
-                                    Netherlands
-                                </td>
-                                <td>
-                                    Baileux
-                                </td>
-                                <td class="text-right">
-                                    $56,142
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Doris Greene
-                                </td>
-                                <td>
-                                    Malawi
-                                </td>
-                                <td>
-                                    Feldkirchen in Kärnten
-                                </td>
-                                <td class="text-right">
-                                    $63,542
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Mason Porter
-                                </td>
-                                <td>
-                                    Chile
-                                </td>
-                                <td>
-                                    Gloucester
-                                </td>
-                                <td class="text-right">
-                                    $78,615
-                                </td>
-                            </tr>
+                            @foreach (TicketEntity newTicket in GetOpenTicketData())
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="#">@newTicket.TicketKey</a>
+                                    </td>
+                                    <td>
+                                        @newTicket.ShortDescription
+                                    </td>
+                                    <td>
+                                        @newTicket.DueDate.ToString("yyyy-MM-dd")
+                                    </td>
+                                    <td>
+                                        @newTicket.Status
+                                    </td>
+                                    <td>
+                                        @newTicket.AssignedToDisplayName
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
@@ -180,7 +141,7 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-category">Rcent Tickets</h5>
+                <h5 class="card-category">Recent Tickets</h5>
                 <h4 class="card-title"> My Recent Tickets</h4>
             </div>
             <div class="card-body">
@@ -254,8 +215,7 @@
         CurrentUser = ITPSFall2023.Data.Code.UserFactory.GetUserInformation("joshs", "joshs");
 
         PageModel = ITPSFall2023.Data.Code.FrontPageFactory.GetFrontPageData(CurrentUser);
-        SetChartData();
-        StateHasChanged();
+
     }
     private void SetChartData()
     {
@@ -270,14 +230,27 @@
         string monthString = string.Empty;
         string companyCount = string.Empty;
         string myDepartmentCount = string.Empty;
-        foreach (MonthEntity newItem in PageModel.MonthlyCount)
+        string totalTicketCount = string.Empty;
+        foreach (MonthEntity newItem in PageModel.MonthlyCount.Where(x => x.Count>0))
         {
             monthString += newItem.MonthName + "|";
             companyCount += newItem.Count + "|";
             var myItem = PageModel.DepartmentMonthlyCount.Where(x => x.MonthName == newItem.MonthName);
-            myDepartmentCount += myItem == null ? "0|" : myItem.FirstOrDefault().Count.ToString() + "|";
+            myDepartmentCount += myItem.FirstOrDefault() == null ? "0|" : myItem.FirstOrDefault().Count.ToString() + "|";
+        }
+        foreach(MonthEntity newItem in PageModel.MonthlyCount)
+        {
+            totalTicketCount += newItem.Count + "|";
         }
 
-        await JSRuntime.InvokeAsync<string>("demo.initDashboardPageCharts", monthString.Substring(0, monthString.Length - 1), companyCount.Substring(0, companyCount.Length - 1), myDepartmentCount.Substring(0, myDepartmentCount.Length - 1));
+        await JSRuntime.InvokeAsync<string>("demo.initDashboardPageCharts", monthString.Substring(0, monthString.Length - 1), companyCount.Substring(0, companyCount.Length - 1), myDepartmentCount.Substring(0, myDepartmentCount.Length - 1), totalTicketCount.Substring(0, totalTicketCount.Length - 1));
+    }
+    private List<TicketEntity> GetOpenTicketData()
+    {
+        if (CurrentUser.DepartmentCode.ToUpper() == "IT")
+        { return PageModel.AssignedToMeTickets; }
+        else
+        { return PageModel.WaitingForUserTickets; }
+
     }
 }
