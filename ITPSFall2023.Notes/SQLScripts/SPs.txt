@@ -1,6 +1,7 @@
 ﻿CREATE OR ALTER   PROCEDURE [dbo].[FrontPageData_SEL] 
 (
        @UserProfileKey INT
+     
 )
 
 AS
@@ -51,6 +52,46 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 		ON U.UserProfileKey = T.UserProfileKey
 		WHERE T.UserProfileKey = @UserProfileKey
 		ORDER BY T.CreatedDateTime DESC
+
+        SELECT COUNT(*)AS CompanyNumber FROM dbo.Ticket T WITH(NOLOCK)
+
+        SELECT COUNT(*) AS OpenCompanyTickets FROM dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.Status S WITH(NOLOCK)
+        ON T.StatusKey=S.StatusKey
+        WHERE S.ClosedInd=0
+
+        select count(*) AS NumberUserTickets
+        From dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.UserProfile U WITH(NOLOCK)
+        ON T.AssignedToUserProfileKey = U.UserProfileKey
+        WHERE U.UserProfileKey = @UserProfileKey
+
+        select count(*) AS MyOpenTickets
+        From dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.UserProfile U WITH(NOLOCK)
+        ON T.AssignedToUserProfileKey = U.UserProfileKey
+        INnER JOIN dbo.Status S WITH(NOLOCK)
+        ON T.StatusKey = S.StatusCode
+        WHERE U.UserProfileKey = @UserProfileKey
+        AND T.StatusKey = 0
+
+        select count(*) AS MyCloseTickets
+        From dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.UserProfile U WITH(NOLOCK)
+        ON T.AssignedToUserProfileKey = U.UserProfileKey
+        INnER JOIN dbo.Status S WITH(NOLOCK)
+        ON T.StatusKey = S.StatusKey
+        WHERE U.UserProfileKey = @UserProfileKey
+        AND S.StatusCode = 'CMPLT'
+
+        SELECT * 
+        FROM dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.UserProfile U WITH(NOLOCK)
+        ON T.AssignedToUserProfileKey = U.UserProfileKey
+        INNER JOIN dbo.Department D WITH(NOLOCK)
+        ON U.DepartmentKey = D.DepartmentKey
+        WHERE D.DepartmentKey = @DepartmentKey
+        GETDATE() > T.DueDate
 	END TRY
 
   BEGIN CATCH
