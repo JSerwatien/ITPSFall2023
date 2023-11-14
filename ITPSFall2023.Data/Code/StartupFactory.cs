@@ -10,7 +10,7 @@ namespace ITPSFall2023.Data.Code
 {
     public class StartupFactory
     {
-        public static StartUpObjectEntity GetStartUpData()
+        public static StartUpObjectEntity GetStartUpData(UserEntity currentUser)
         {
             DataSet ds = new();
             StartUpObjectEntity returnData = new();
@@ -18,7 +18,7 @@ namespace ITPSFall2023.Data.Code
 
             try
             {
-                ds = DataFactory.GetDataSet(strSQL, "StartUpData");
+                ds = DataFactory.GetDataSet(strSQL, "StartUpData", currentUser);
                 returnData.Statuses = StatusFactory.LoadStatuses(ds.Tables[0]);
                 returnData.Departments = LoadDepartments(ds.Tables[1]);
                 returnData.Users = LoadUsers(ds.Tables[2]);

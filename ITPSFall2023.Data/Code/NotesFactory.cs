@@ -105,14 +105,14 @@ namespace ITPSFall2023.Data.Code
             }
             return returnData;
         }
-        public static int SaveNote(TicketNoteEntity theNote)
+        public static int SaveNote(TicketNoteEntity theNote, UserEntity currentUser)
         {
             DataSet ds = new();
             string strSQL = "EXEC dbo.TicketNote_INS '{0}', '{1}', {2}";
             try
             {
                 strSQL = string.Format(strSQL, theNote.Note.Replace("'", "''"), theNote.NoteEnteredBy, theNote.TicketKey);
-                ds = DataFactory.GetDataSet(strSQL, "NewNote");
+                ds = DataFactory.GetDataSet(strSQL, "NewNote", currentUser);
                 return Convert.ToInt32(ds.Tables[0].Rows[0][0]);
             }
             catch (Exception ex)

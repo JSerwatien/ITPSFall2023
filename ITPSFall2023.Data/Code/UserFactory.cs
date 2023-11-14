@@ -11,7 +11,7 @@ namespace ITPSFall2023.Data.Code
 {
     public class UserFactory
     {
-        public static UserChallengeEntity GetUserChallengeInformation(string userName)
+        public static UserChallengeEntity GetUserChallengeInformation(string userName, UserEntity currentUser)
         {
             string strSQL = "EXEC dbo.User_GetChallengeInformation '{0}'";
             DataSet ds = new();
@@ -20,7 +20,7 @@ namespace ITPSFall2023.Data.Code
             {
                 returnData.UserName = userName;
                 strSQL = string.Format(strSQL, LocalFunctions.ScrubValueForSQL(userName));
-                ds = DataFactory.GetDataSet(strSQL, "UserInformation");
+                ds = DataFactory.GetDataSet(strSQL, "UserInformation", currentUser);
                 if(ds.Tables[0].Rows.Count>0)
                 {
                     returnData.ChallengeQuestion = ds.Tables[0].Rows[0]["ChallengeQuestion"].ToString();
@@ -41,12 +41,13 @@ namespace ITPSFall2023.Data.Code
             UserEntity returnData = new();
             try
             {
+                returnData.DataToken = EncryptionFactory.EncryptString(DateTime.Now.ToString());
                 strSQL = string.Format(strSQL, LocalFunctions.ScrubValueForSQL(userName));
-                ds = DataFactory.GetDataSet(strSQL, "UserInformation");
+                ds = DataFactory.GetDataSet(strSQL, "UserInformation", returnData);
                 returnData.UserName = userName;
                 returnData.Password = passWord;
                 returnData = PopulateUserInformation(ds, returnData);
-                returnData.StartupObjects = StartupFactory.GetStartUpData();
+                returnData.StartupObjects = StartupFactory.GetStartUpData(returnData);
             }
             catch (Exception ex)
             {

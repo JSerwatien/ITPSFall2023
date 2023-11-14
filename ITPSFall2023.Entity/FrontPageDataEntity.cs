@@ -15,6 +15,12 @@ namespace ITPSFall2023.Entity
         public List<TicketEntity> AssignedToMeTickets { get; set; }
         public List<MonthEntity> MonthlyCount { get; set; }
         public List<MonthEntity> DepartmentMonthlyCount { get; set; }
+        public int TotalTicketCount { get; set; }
+        public int TotalOpenTicketCount { get; set; }
+        public int UserTicketCount { get; set; }
+        public int MyOpenTicketCount { get; set; }
+        public int MyClosedTicketCount { get; set; }
+        public List<StringIntEntity> PastDueCountList { get; set; }
         public Exception ErrorObject { get; set; }
         public string PageMessage { get; set; }
     }

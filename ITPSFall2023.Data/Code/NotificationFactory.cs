@@ -10,13 +10,13 @@ namespace ITPSFall2023.Data.Code
 {
     public class NotificationFactory
     {
-        public static List<NotificationEntity> GetAllNotifications(int userProfileKey)
+        public static List<NotificationEntity> GetAllNotifications(UserEntity currentUser)
         {
-            string strSQL = "EXEC dbo.Notification_GetAllNotifications " + userProfileKey;
+            string strSQL = "EXEC dbo.Notification_GetAllNotifications " + currentUser.UserProfileKey;
             DataSet ds = new();
             try
             {
-                ds = DataFactory.GetDataSet(strSQL, "Notifications");
+                ds = DataFactory.GetDataSet(strSQL, "Notifications", currentUser);
                 return PopulateNotifications(ds.Tables[0]);
             }
             catch (Exception ex)
@@ -54,13 +54,13 @@ namespace ITPSFall2023.Data.Code
                 throw new Exception("There was an error loading the notifications: " + ex.Message);
             }
         }
-        public static NotificationEntity UpdateNotificationToRead(NotificationEntity theNotification, int userProfileKey)
+        public static NotificationEntity UpdateNotificationToRead(NotificationEntity theNotification, UserEntity currentUser)
         {
             string strSQL = "EXEC dbo.Notification_MarkAsRead {0},{1}";
             try
             {
-                strSQL = string.Format(strSQL, theNotification.NotificationKey, userProfileKey);
-                DataFactory.GetDataSet(strSQL, "NotificationUpdate");
+                strSQL = string.Format(strSQL, theNotification.NotificationKey, currentUser.UserProfileKey);
+                DataFactory.GetDataSet(strSQL, "NotificationUpdate", currentUser);
                 return theNotification;
             }
             catch (Exception ex)
@@ -68,20 +68,20 @@ namespace ITPSFall2023.Data.Code
                 throw ex;
             }
         }
-        public static string AddNewNotification(int userProfileKey, int notificationTypeKey, string notificationValue, List<NotificationTypeEntity> theTypes)
+        public static string AddNewNotification(UserEntity currentUser, int notificationTypeKey, string notificationValue, List<NotificationTypeEntity> theTypes)
         {
             string notificationTypeCode = theTypes.Where(x => x.NotificationTypeKey == notificationTypeKey).FirstOrDefault().NotificationTypeCode;
-            return AddNewNotification(userProfileKey, notificationTypeCode, notificationValue);
+            return AddNewNotification(currentUser.UserProfileKey, notificationTypeCode, notificationValue,currentUser);
         }
 
-        public static string AddNewNotification(int userProfileKey, string notificationTypeCode, string notificationValue)
+        public static string AddNewNotification(int userProfileKey, string notificationTypeCode, string notificationValue, UserEntity currentUser)
         {
             string strSQL = "EXEC dbo.Notification_AddNotification '{0}', {1}, '{2}'";
             DataSet ds = new DataSet();
             try
             {
                 strSQL = string.Format(strSQL, notificationTypeCode.Replace("'", "''"), userProfileKey == 0 ? "NULL" : userProfileKey, notificationValue.Replace("'", "''"));
-                ds = DataFactory.GetDataSet(strSQL, "NewNotification");
+                ds = DataFactory.GetDataSet(strSQL, "NewNotification",currentUser);
                 return ds.Tables[0].Rows[0][0].ToString();
             }
             catch (Exception ex)
