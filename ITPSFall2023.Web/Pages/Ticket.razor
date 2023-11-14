@@ -1,0 +1,196 @@
+﻿@page "/Ticket"
+@page "/Ticket/{TicketKey}"
+@inject Radzen.DialogService dialogService
+@using Radzen
+@using ITPSFall2023.Entity
+@using ITPSFall2023.Data.Code
+<div class="container-fluid" style="width:1500px !important; margin-left:-225px">
+    @if (!string.IsNullOrEmpty(PageModel?.PageMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @PageModel.PageMessage
+        </div>
+    }
+    @if (PageModel?.ErrorObject != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @PageModel.ErrorObject.Message
+        </div>
+    }
+    <h1>Ticket ID: @GetTicketIDForDisplay()</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Description:</h2>
+            <RadzenCard>
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Priority</RadzenText>
+                <RadzenNumeric TValue=int class="form-control" @bind-Value=@PageModel.Priority Min="0" Max="99" />
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Short Description</RadzenText>
+                <RadzenTextBox Placeholder="Short Description..." class="form-control" @bind-Value=@PageModel.ShortDescription />
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Description</RadzenText>
+                <RadzenTextArea Placeholder="Description..." class="form-control" @bind-Value=@PageModel.LongDescription />
+            </RadzenCard>
+            @if (PageModel.TicketKey > 0)
+            {
+                <br />
+                <h2>Status History:</h2>
+                <RadzenCard>
+                    @if (PageModel.StatusHistory != null)
+                    {
+                        <table class="table table-hover table-striped" style="font-size:8pt; font-family:verdana">
+                            <tr>
+                                <th style="width:30%">Old Status</th>
+                                <th style="width:30%">New Status</th>
+                                <th style="width:25%">Updated By</th>
+                                <th style="width:15%">Updated On</th>
+                            </tr>
+                            @foreach (StatusHistoryEntity newItem in PageModel.StatusHistory.OrderByDescending(x => x.DateOfStatus))
+                            {
+                                <tr>
+                                    <td>@newItem.OldStatus</td>
+                                    <td>@newItem.NewStatus</td>
+                                    <td>@newItem.UpdatedBy</td>
+                                    <td>@newItem.DateOfStatus.ToString("yyyy-MM-dd")</td>
+                                </tr>
+                            }
+                        </table>
+                    }
+                </RadzenCard>
+            }
+        </div>
+        <div class="col-md-6">
+            <h2>Status:</h2>
+            <RadzenCard>
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Due Date:</RadzenText>
+                <RadzenDatePicker @bind-Value=PageModel.DueDate ShowTime=false Style="width:100%" DateFormat="yyyy-MM-dd" />
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Assigned To:</RadzenText>
+                <RadzenDropDown TValue="int" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
+                                Data=@AppState.CurrentUser.StartupObjects.Users TextProperty="DisplayName" ValueProperty="UserProfileKey" @bind-Value=PageModel.AssignedToUserProfileKey class="form-control" />
+                @if (PageModel.TicketKey > 0)
+                {
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Status:</RadzenText>
+                    <RadzenDropDown TValue="int" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" AllowFiltering="true"
+                                Data=@AppState.CurrentUser.StartupObjects.Statuses TextProperty="Status" ValueProperty="StatusCodeKey" @bind-Value=PageModel.StatusKey class="form-control" />
+                }
+            </RadzenCard>
+            <RadzenButton Text="Save" Icon="save" ButtonStyle="ButtonStyle.Success" Style="float:right" Click="() => SaveTicket()"></RadzenButton>
+            <br />
+            @if (PageModel.TicketKey > 0)
+            {
+                <h2>Notes:</h2>
+                <RadzenCard>
+                    @if (PageModel.NoteList != null)
+                    {
+                        <table class="table table-hover table-striped" style="font-size:8pt; font-family:verdana">
+                            <tr>
+                                <th style="width:5%">ID</th>
+                                <th style="width:60%">Note</th>
+                                <th style="width:15%">Created By</th>
+                                <th style="width:15%">Created On</th>
+                                <th style="width:5%">Remove</th>
+                            </tr>
+                            @foreach (TicketNoteEntity newItem in PageModel.NoteList.OrderByDescending(x => x.CreatedDateTime))
+                            {
+                                <tr>
+                                    <td>@newItem.TicketNoteKey</td>
+                                    <td>@newItem.Note</td>
+                                    <td>@newItem.NoteEnteredBy</td>
+                                    <td>@newItem.CreatedDateTime.ToString("yyyy-MM-dd")</td>
+                                    <td>
+                                        @if (@newItem.NoteEnteredBy == AppState.CurrentUser.SQLUserName)
+                                        {
+                                            <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="() => DeleteNote(newItem.TicketNoteKey)" class="btn btn-sm" />
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+
+                    }
+                </RadzenCard>
+                <RadzenButton Text="Add New Note" Icon="save" ButtonStyle="ButtonStyle.Success" Style="float:right" Click="() => PopAddNewNote()"></RadzenButton>
+            }
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public string TicketKey { get; set; }
+    [CascadingParameter]
+    public CascadingAppState AppState { get; set; }
+    private TicketEntity PageModel = new();
+    protected override void OnInitialized()
+    {
+        dialogService.OnClose += DialogPopupClosed;
+        if (ITPSFall2023.Data.Code.LocalFunctions.IsNumeric(TicketKey))
+        {
+            ReloadModel();
+        }
+    }
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        ReloadModel();
+    }
+    private void ReloadModel()
+    {
+        if (Convert.ToInt32(TicketKey) > 0)
+        { PageModel = ITPSFall2023.Data.Code.TicketFactory.LoadTicket(Convert.ToInt32(TicketKey), AppState.CurrentUser); }
+        else
+        { PageModel = new(); }
+    }
+    private string GetTicketIDForDisplay()
+    {
+        return PageModel.TicketKey == 0 ? "UNSAVED" : PageModel.TicketKey.ToString();
+    }
+    private void SaveTicket()
+    {
+        ValidateEntry();
+        if (PageModel.ErrorObject == null)
+        {
+            PageModel = TicketFactory.SaveTicket(PageModel, AppState.CurrentUser);
+            if (PageModel.ErrorObject == null)
+            { PageModel.PageMessage = "Your ticket was saved successfully!"; }
+        }
+    }
+    private void ValidateEntry()
+    {
+        PageModel.ErrorObject = null;
+        if (PageModel.Priority == 0) { PageModel.Priority = 99; }
+        if (string.IsNullOrEmpty(PageModel.ShortDescription))
+        { PageModel.ErrorObject = new Exception("The Short Description field is required"); return; }
+        if (string.IsNullOrEmpty(PageModel.LongDescription))
+        { PageModel.ErrorObject = new Exception("The Long Description field is required"); return; }
+        if (PageModel.DueDate < DateTime.Now && !StatusIsClosed())
+        { PageModel.ErrorObject = new Exception("Invalid Due Date"); return; }
+    }
+    private bool StatusIsClosed()
+    {
+        var statusItem = AppState.CurrentUser.StartupObjects.Statuses.Where(x => x.StatusCodeKey == PageModel.StatusKey).FirstOrDefault();
+        if (statusItem == null) { return false; }
+        else { return statusItem.ClosedInd; }
+    }
+    private void PopAddNewNote()
+    {
+        //dialogService.Open<ITPSFall2023.Pages.NewNote>("Add New Note", new Dictionary<string, object>() { { "TicketKey", PageModel.TicketKey.ToString() } }, new Radzen.DialogOptions() { Width = "800px", Height = "370px", Resizable = true, Draggable = true });
+    }
+    private async void DialogPopupClosed(dynamic theResult)
+    {
+        if (theResult != null && theResult == true)
+        {
+            ReloadModel();
+        }
+    }
+    private void DeleteNote(int ticketNoteKey)
+    {
+        try
+        {
+            //TicketFactory.RemoveNote(ticketNoteKey);
+            ReloadModel();
+        }
+        catch (Exception ex)
+        {
+            PageModel.ErrorObject = ex;
+        }
+    }
+}
