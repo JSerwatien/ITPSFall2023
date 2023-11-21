@@ -36,7 +36,7 @@ namespace ITPSFall2023.Data.Code
                 if (ds.Tables[8].Rows.Count > 0) { returnData.MyOpenTicketCount = Convert.ToInt32(ds.Tables[8].Rows[0][0]); }
                 if (ds.Tables[9].Rows.Count > 0) { returnData.MyClosedTicketCount = Convert.ToInt32(ds.Tables[9].Rows[0][0]); }
                 returnData.PastDueCountList = LoadStringIntList(ds.Tables[10], "FirstName", "LastName", "NumberPastDueDate");
-                returnData.PageMessage = "Welcome Back, " + currentUser.DisplayName;
+                returnData.PastDueCountListByDepartment = LoadStringIntList(ds.Tables[11], "Department", string.Empty, "NumberPastDueDate");
             }
             catch (Exception ex)
             {

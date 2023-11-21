@@ -8,30 +8,23 @@
     <div class="col-lg-4">
         <div class="card card-chart">
             <div class="card-header">
-                <h5 class="card-category">Global Statistics</h5>
-                <h4 class="card-title">Company Stats</h4>
-                <div class="dropdown">
-                    <button type="button" class="btn btn-round btn-outline-default dropdown-toggle btn-simple btn-icon no-caret" data-toggle="dropdown">
-                        <i class="now-ui-icons loader_gear"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                        <a class="dropdown-item text-danger" href="#">Remove Data</a>
-                    </div>
-                </div>
+                <h5 class="card-category">Past Due Tickets</h5>
+                <RadzenChart>
+                    <RadzenDonutSeries Data="@PageModel.PastDueCountListByDepartment.ToList()" CategoryProperty="StringValue" ValueProperty="IntValue">
+                        <ChildContent>
+                            <RadzenSeriesDataLabels Visible="true" />
+                        </ChildContent>
+                        <TitleTemplate>
+                            <div class="rz-donut-content">
+                                <div>Past Due</div>
+                                <div>By Department</div>
+                            </div>
+                        </TitleTemplate>
+                    </RadzenDonutSeries>
+                </RadzenChart>
+                <br />
             </div>
-            <div class="card-body">
-                <div class="chart-area">
-                    <canvas id="lineChartExample"></canvas>
-                </div>
-            </div>
-            <div class="card-footer">
-                <div class="stats">
-                    <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
-                </div>
-            </div>
+
         </div>
     </div>
     <div class="col-lg-4 col-md-6">
@@ -41,13 +34,16 @@
                 <h4 class="card-title">Company Stats</h4>
             </div>
             <div class="card-body" style="height:215px">
-                <ul>
-                    <li>Total Company Tickets: @PageModel.TotalTicketCount</li>
-                    <li>Total Open Tickets: @PageModel.TotalOpenTicketCount</li>
-                    <li>My Tickets: @PageModel.UserTicketCount</li>
-                    <li>My Open Tickets: @PageModel.MyOpenTicketCount</li>
-                    <li>My Closed Tickets: @PageModel.MyClosedTicketCount</li>
-                </ul>
+                @if(AppState.CurrentUser!=null)
+                {
+                    <ul>
+                        <li class="list-group-item"><i class="now-ui-icons education_paper"></i> Total Company Tickets: @PageModel.TotalTicketCount</li>
+                        <li class="list-group-item"><i class="now-ui-icons education_paper"></i> Total Open Tickets: @PageModel.TotalOpenTicketCount</li>
+                        <li class="list-group-item"><i class="now-ui-icons education_paper"></i> My Tickets: @PageModel.UserTicketCount</li>
+                        <li class="list-group-item"><i class="now-ui-icons education_paper"></i> My Open Tickets: @PageModel.MyOpenTicketCount</li>
+                        <li class="list-group-item"><i class="now-ui-icons education_paper"></i> My Closed Tickets: @PageModel.MyClosedTicketCount</li>
+                    </ul>
+                }
             </div>
             <div class="card-footer">
                 <div class="stats">
@@ -77,144 +73,142 @@
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-category">Open Tickets</h5>
-                @if (CurrentUser.DepartmentCode.ToUpper() == "IT")
-                {
-                    <h4 class="card-title"> Tickets Assigned To Me</h4>
-                }
-                else
-                {
-                    <h4 class="card-title"> Waiting For My Response</h4>
-                }
+@if(PageModel!=null && PageModel.WaitingForUserTickets !=null)
+{
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-category">Open Tickets</h5>
+                    @if (AppState.CurrentUser != null && AppState.CurrentUser.DepartmentCode.ToUpper() == "IT")
+                    {
+                        <h4 class="card-title"> Tickets Assigned To Me</h4>
+                    }
+                    else
+                    {
+                        <h4 class="card-title"> Waiting For My Response</h4>
+                    }
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class=" text-primary">
+                            <th>
+                                Ticket ID
+                            </th>
+                            <th>
+                                Description
+                            </th>
+                            <th>
+                                Due Date
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                Assigned To
+                            </th>
+                            </thead>
+                            <tbody>
+                                @foreach (TicketEntity newTicket in GetOpenTicketData())
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="#">@newTicket.TicketKey</a>
+                                        </td>
+                                        <td>
+                                            @newTicket.ShortDescription
+                                        </td>
+                                        <td>
+                                            @newTicket.DueDate.ToString("yyyy-MM-dd")
+                                        </td>
+                                        <td>
+                                            @newTicket.Status
+                                        </td>
+                                        <td>
+                                            @newTicket.AssignedToDisplayName
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead class=" text-primary">
-                        <th>
-                            Ticket ID
-                        </th>
-                        <th>
-                            Description
-                        </th>
-                        <th>
-                            Due Date
-                        </th>
-                        <th>
-                            Status
-                        </th>
-                        <th>
-                            Assigned To
-                        </th>
-                        </thead>
-                        <tbody>
-                            @foreach (TicketEntity newTicket in GetOpenTicketData())
-                            {
-                                <tr>
-                                    <td>
-                                        <a href="#">@newTicket.TicketKey</a>
-                                    </td>
-                                    <td>
-                                        @newTicket.ShortDescription
-                                    </td>
-                                    <td>
-                                        @newTicket.DueDate.ToString("yyyy-MM-dd")
-                                    </td>
-                                    <td>
-                                        @newTicket.Status
-                                    </td>
-                                    <td>
-                                        @newTicket.AssignedToDisplayName
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-category">Recent Tickets</h5>
+                    <h4 class="card-title"> My Recent Tickets</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class=" text-primary">
+                            <th>
+                                Ticket ID
+                            </th>
+                            <th>
+                                Description
+                            </th>
+                            <th>
+                                Due Date
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                Assigned To
+                            </th>
+                            </thead>
+                            <tbody>
+                                @foreach (TicketEntity newTicket in PageModel.MostRecentTickets)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="#">@newTicket.TicketKey</a>
+                                        </td>
+                                        <td>
+                                            @newTicket.ShortDescription
+                                        </td>
+                                        <td>
+                                            @newTicket.DueDate.ToString("yyyy-MM-dd")
+                                        </td>
+                                        <td>
+                                            @newTicket.Status
+                                        </td>
+                                        <td>
+                                            @newTicket.AssignedToDisplayName
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-category">Recent Tickets</h5>
-                <h4 class="card-title"> My Recent Tickets</h4>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead class=" text-primary">
-                        <th>
-                            Ticket ID
-                        </th>
-                        <th>
-                            Description
-                        </th>
-                        <th>
-                            Due Date
-                        </th>
-                        <th>
-                            Status
-                        </th>
-                        <th>
-                            Assigned To
-                        </th>
-                        </thead>
-                        <tbody>
-                            @foreach (TicketEntity newTicket in PageModel.MostRecentTickets)
-                            {
-                                <tr>
-                                    <td>
-                                        <a href="#">@newTicket.TicketKey</a>
-                                    </td>
-                                    <td>
-                                        @newTicket.ShortDescription
-                                    </td>
-                                    <td>
-                                        @newTicket.DueDate.ToString("yyyy-MM-dd")
-                                    </td>
-                                    <td>
-                                        @newTicket.Status
-                                    </td>
-                                    <td>
-                                        @newTicket.AssignedToDisplayName
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+}
 @if (PageModel != null)
 {
     <h3>@PageModel.PageMessage</h3>
 }
 @code
 {
+    [CascadingParameter]
+    public CascadingAppState AppState { get; set; }
     private UserEntity CurrentUser { get; set; }
     private FrontPageDataEntity PageModel { get; set; }
-    private DataItem[] MyTicketData = new DataItem[]
-    {
-        new DataItem()
-    };
-    class DataItem
-    {
-        public string LabelValue{ get; set; }
-        public int ValueValue { get; set; }
-    }
+
     protected override void OnInitialized()
     {
-        CurrentUser = new();
-        CurrentUser = ITPSFall2023.Data.Code.UserFactory.GetUserInformation("joshs", "joshs");
-
-        PageModel = ITPSFall2023.Data.Code.FrontPageFactory.GetFrontPageData(CurrentUser);
+        //CurrentUser = new();
+        //CurrentUser = ITPSFall2023.Data.Code.UserFactory.GetUserInformation("joshs", "joshs");
+        //AppState.SetProperty(this, "CurrentUser", CurrentUser);
+        if(AppState.CurrentUser!=null && AppState.CurrentUser.UserProfileKey>0)
+        { PageModel = ITPSFall2023.Data.Code.FrontPageFactory.GetFrontPageData(AppState.CurrentUser); }
 
     }
     private void SetChartData()
@@ -247,7 +241,7 @@
     }
     private List<TicketEntity> GetOpenTicketData()
     {
-        if (CurrentUser.DepartmentCode.ToUpper() == "IT")
+        if (AppState.CurrentUser.DepartmentCode.ToUpper() == "IT")
         { return PageModel.AssignedToMeTickets; }
         else
         { return PageModel.WaitingForUserTickets; }

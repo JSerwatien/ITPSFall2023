@@ -24,8 +24,116 @@
     <link href="demo/demo.css" rel="stylesheet" />
     <link rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css">
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+    <script>
+        var Cookies = {
+
+            setCookie: function (cname, cvalue, exdays) {
+
+                //alert(cname);
+
+                var d = new Date();
+
+                d.setTime(d.getTime() + (exdays));
+
+                var expires = "expires=" + d.toUTCString();
+
+                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+
+            },
+
+            getCookie: function (cname) {
+
+                var name = cname + "=";
+
+                var decodedCookie = decodeURIComponent(document.cookie);
+
+                var ca = decodedCookie.split(';');
+
+                for (var i = 0; i < ca.length; i++) {
+
+                    var c = ca[i];
+
+                    while (c.charAt(0) == ' ') {
+
+                        c = c.substring(1);
+
+                        //console.log(c)
+
+                    }
+
+                    if (c.indexOf(name) == 0) {
+
+                        //console.log(c.substring(name.length, c.length));
+
+                        return c.substring(name.length, c.length);
+
+                    }
+
+                }
+
+                return "";
+
+            },
+
+            deleteCookie: function (name) {
+
+                document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                location.href = "/";
+            }
+
+        }
+
+        window.ReadCookie = {
+
+            ReadCookie: function (cname) {
+
+                var name = cname + "=";
+
+                var decodedCookie = decodeURIComponent(document.cookie);
+
+                var ca = decodedCookie.split(';');
+
+                for (var i = 0; i < ca.length; i++) {
+
+                    var c = ca[i];
+
+                    while (c.charAt(0) == ' ') {
+
+                        c = c.substring(1);
+
+                    }
+
+                    if (c.indexOf(name) == 0) {
+
+                        return c.substring(name.length, c.length);
+
+                    }
+
+                }
+
+                return "";
+
+            },
+
+            WriteCookie: function (cname, cvalue, exdays) {
+
+                alert(cname);
+
+                var d = new Date();
+
+                d.setTime(d.getTime() + (exdays));
+
+                var expires = "expires=" + d.toUTCString();
+
+                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+
+            }
+
+        }
+    </script>
 </head>
 <body>
+    <component type="typeof(App)" render-mode="ServerPrerendered" />
     <!--   Core JS Files   -->
     <script src="../js/core/jquery.min.js"></script>
     <script src="../js/core/popper.min.js"></script>
@@ -43,11 +151,10 @@
             // Javascript method's body can be found in assets/js/demos.js
             //demo.initDashboardPageCharts();
         });
-        //function LoadCharts() {
-        //    demo.initDashboardPageCharts();
-        //}
+                //function LoadCharts() {
+                //    demo.initDashboardPageCharts();
+                //}
     </script>
-    <component type="typeof(App)" render-mode="ServerPrerendered" />
     <script src="/_framework/blazor.server.js"></script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
     <script src="../js/plugins/chartjs.min.js" defer></script>

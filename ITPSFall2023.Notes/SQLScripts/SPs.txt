@@ -1,4 +1,4 @@
-﻿CREATE OR ALTER     PROCEDURE [dbo].[FrontPageData_SEL]
+﻿CReATE OR ALTER       PROCEDURE [dbo].[FrontPageData_SEL]
 (
        @UserProfileKey INT
      
@@ -100,7 +100,20 @@ AS
         AND GETDATE() > T.DueDate)
         OR (T.DueDate > T.DateCompleted)
         GROUP BY U.FirstName, U.LastName
-END TRY
+
+       SELECT D.Department, count(*) AS NumberPastDueDate
+        FROM dbo.Ticket T WITH(NOLOCK)
+        INNER JOIN dbo.UserProfile U WITH(NOLOCK)
+        ON T.UserProfileKey = U.UserProfileKey
+		INNER JOIN Department D WITH(NOLOCK)
+		ON U.DepartmentKey = D.DepartmentKey
+        INNER JOIN dbo.Status S WITH(NOLOCK)
+        ON t.StatusKey = s.StatusKey
+        WHERE (s.ClosedInd = 0
+        AND GETDATE() > T.DueDate)
+        OR (T.DueDate > T.DateCompleted)
+        GROUP BY D.Department
+	END TRY
 
   BEGIN CATCH
            DECLARE @ErrorNumber INT,  @ErrorSeverity INT,
@@ -127,6 +140,7 @@ END TRY
                   RAISERROR (@ErrorMessage, @ErrorSeverity,
                                    1,@ErrorNumber,@ErrorSeverity,@ErrorState,@ErrorProcedure,@ErrorLine);
 END CATCH
+
 GO
 
 CREATE PROCEDURE [dbo].[GetOverviewReportData]
