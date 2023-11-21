@@ -1,4 +1,4 @@
-﻿CReATE OR ALTER       PROCEDURE [dbo].[FrontPageData_SEL]
+﻿CREATE OR ALTER PROCEDURE [dbo].[FrontPageData_SEL]
 (
        @UserProfileKey INT
      
@@ -77,7 +77,7 @@ AS
         INNER JOIN dbo.UserProfile U WITH(NOLOCK)
         ON T.AssignedToUserProfileKey = U.UserProfileKey
         INnER JOIN dbo.Status S WITH(NOLOCK)
-        ON T.StatusKey = S.StatusCode
+        ON T.StatusKey = S.StatusKey
         WHERE U.UserProfileKey = @UserProfileKey
         AND T.StatusKey = 0
 
@@ -140,6 +140,7 @@ AS
                   RAISERROR (@ErrorMessage, @ErrorSeverity,
                                    1,@ErrorNumber,@ErrorSeverity,@ErrorState,@ErrorProcedure,@ErrorLine);
 END CATCH
+
 
 GO
 
