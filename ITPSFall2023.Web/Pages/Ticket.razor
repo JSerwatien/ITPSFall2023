@@ -4,7 +4,9 @@
 @using Radzen
 @using ITPSFall2023.Entity
 @using ITPSFall2023.Data.Code
-<div class="container-fluid" style="width:1500px !important; margin-left:-225px">
+<div class="container-fluid" style="width:1500px !important">
+    <br />
+    <br />
     @if (!string.IsNullOrEmpty(PageModel?.PageMessage))
     {
         <div class="alert alert-success" role="alert">
@@ -172,7 +174,7 @@
     }
     private void PopAddNewNote()
     {
-        //dialogService.Open<ITPSFall2023.Pages.NewNote>("Add New Note", new Dictionary<string, object>() { { "TicketKey", PageModel.TicketKey.ToString() } }, new Radzen.DialogOptions() { Width = "800px", Height = "370px", Resizable = true, Draggable = true });
+        dialogService.Open<ITPSFall2023.Web.Pages.NewNote>("Add New Note", new Dictionary<string, object>() { { "TicketKey", PageModel.TicketKey.ToString() } }, new Radzen.DialogOptions() { Width = "800px", Height = "370px", Resizable = true, Draggable = true });
     }
     private async void DialogPopupClosed(dynamic theResult)
     {
@@ -185,7 +187,7 @@
     {
         try
         {
-            //TicketFactory.RemoveNote(ticketNoteKey);
+            TicketFactory.RemoveNote(ticketNoteKey, AppState.CurrentUser);
             ReloadModel();
         }
         catch (Exception ex)

@@ -166,10 +166,24 @@ Notes:
 	GitHub:	https://github.com/JSerwatien/ITPSFall2023
 	Template:	https://demos.creative-tim.com/now-ui-dashboard/examples/dashboard.html?_ga=2.217200534.1415108639.1697540512-1924406482.1697540512&_gl=1*g3hltm*_ga*MTkyNDQwNjQ4Mi4xNjk3NTQwNTEy*_ga_LMRL06STSS*MTY5NzU0MDUxMi4xLjEuMTY5NzU0MDU1MC4yMi4wLjA.
 Homework:
-	1)	Donut chart not showing (https://blazor.radzen.com/donut-chart)
-	2)	Clean up stats
-	3)	Clean up navigation icons (https://demos.creative-tim.com/now-ui-dashboard/examples/icons.html)
-	4)	Start reviewing calendar control (https://blazor.radzen.com/scheduler)
+	1)	Run SPs:
+		a)	Ticket_SEL
+		b)	Ticket_SELDueDate
+		c)	GetStartUpData
+		d)	TicketNote_INS
+		e)	Ticket_UPTINS
+		f)	Note_UPTActiveInd
+		g)	FrontPageData_SEL (confirm status is joining on StatusKey)
+	2)	Review Razor pages:
+		a)	Ticket
+		b)	TicketCalendar
+	3)	Fix login page-to-page issue
+	4)	TicketCalendar page:
+		a)	On Monthly View only, if the logged-in user has tickets do that day, make the background another color (OnSlotRender event)
+	5)	Review Notification tables:
+		a)	NotificationActive
+		b)	Notification
+		c)	NotificationType
 
 
 Classwork:

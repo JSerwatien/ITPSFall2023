@@ -629,10 +629,7 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 END CATCH
 GO
 /****** Object:  StoredProcedure [dbo].[Ticket_UPTINS]    Script Date: 10/17/2023 5:59:55 AM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
+
 CREATE   PROCEDURE [dbo].[Ticket_UPTINS]
 (
        @TicketKey INT, 
