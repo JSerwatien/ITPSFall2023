@@ -11,7 +11,7 @@ namespace ITPSFall2023.Data.Code
 {
     public class DataFactory
     {
-        private static readonly string connectionString = "Data Source=localhost\\sqlExpress;Initial Catalog =ITPSFall2023; Integrated Security = True;TrustServerCertificate=True";
+        private static readonly string connectionString = "Data Source=localhost;Initial Catalog =ITPSFall2023; Integrated Security = True;TrustServerCertificate=True";
         public static DataSet GetDataSet(string strSQL, string tableName, UserEntity currentUser)
         {
             try
