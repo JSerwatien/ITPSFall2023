@@ -1,0 +1,110 @@
+﻿@page "/Notifications"
+@inject Radzen.DialogService dialogService
+@inject NavigationManager NavManager
+@using Radzen
+@using ITPSFall2023.Data.Code
+@using ITPSFall2023.Entity
+<div class="container-fluid">
+    <br /><br />
+    @if (!string.IsNullOrEmpty(PageMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @PageMessage
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ErrorMessage
+        </div>
+    }
+    <div class="row">
+        <div class="col-md-6 col-lg-6">
+            <h1>Notifications</h1>
+        </div>
+        <div class="col-md-6 col-lg-6">
+            <RadzenButton Text="Send Notification" Icon="save" ButtonStyle="ButtonStyle.Success" Style="float:right" Click="() => SendNotification()"></RadzenButton>
+        </div>
+    </div>
+    <RadzenDataGrid AllowGrouping="true" AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="20"
+                    AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" RowRender="@OnRowRender"
+                    Data="@PageModel" TItem="NotificationEntity" LogicalFilterOperator="LogicalFilterOperator.Or">
+        <Columns>
+            <RadzenDataGridColumn TItem="NotificationEntity" Title="Notification" TextAlign="TextAlign.Center">
+                <Template Context="TheData">
+                    @((MarkupString) TheData.NotificationValue)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="NotificationEntity" Property="NotificationType" Title="Type" Groupable="true" />
+            <RadzenDataGridColumn TItem="NotificationEntity" Property="NotificationTarget" Title="Audience" Groupable="true" />
+            <RadzenDataGridColumn TItem="TicketEntity" Property="CreatedDateTime" Title="Notification Date">
+                <Template Context="TheData">
+                    @TheData.CreatedDateTime.ToString("yyyy-MM-dd")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="NotificationEntity" Property="CreatedDateTime" Title="Notification Date" />
+            <RadzenDataGridColumn TItem="NotificationEntity" Property="CreatedBy" Title="CreatedBy" />
+            <RadzenDataGridColumn TItem="NotificationEntity" Title="Status" TextAlign="TextAlign.Center">
+                <Template Context="TheData">
+                    @if (TheData.ReadDateTime == DateTime.MinValue)
+                    {
+                        <a href="JavaScript: void(0);" onclick="@(() => UpdateNotificationToRead(TheData))">UNREAD</a>
+                    }
+                    else
+                    {
+                        <b>READ</b>
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+
+</div>
+@code {
+    [CascadingParameter]
+    public CascadingAppState AppState { get; set; }
+    private List<NotificationEntity> PageModel = new();
+    private string PageMessage = string.Empty;
+    private string ErrorMessage = string.Empty;
+    protected override void OnInitialized()
+    {
+        ReloadModel();
+    }
+    private void ReloadModel()
+    {
+        try
+        {
+            PageModel = NotificationFactory.GetAllNotifications(AppState.CurrentUser);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+
+    }
+    private void UpdateNotificationToRead(NotificationEntity theNotification)
+    {
+        try
+        {
+            if (theNotification.ReadDateTime == DateTime.MinValue)
+            {
+                NotificationFactory.UpdateNotificationToRead(theNotification, AppState.CurrentUser);
+                ReloadModel();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+    protected void OnRowRender(RowRenderEventArgs<NotificationEntity> args)
+    {
+        if (args.Data.ReadDateTime == DateTime.MinValue)
+        { args.Attributes.Add("style", $"background-color: #CFE2FF"); }
+    }
+    private void SendNotification()
+    {
+        NavManager.NavigateTo("/SendNotification");
+    }
+}

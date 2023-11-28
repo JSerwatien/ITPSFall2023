@@ -49,7 +49,7 @@
             AppointmentList = new List<Radzen.Blazor.AppointmentData>();
             foreach (TicketEntity newItem in TicketList)
             {
-                AppointmentList.Add(new AppointmentData { Data = newItem.TicketKey, Start = Convert.ToDateTime(newItem.DueDate.ToString("yyyy-MM-dd 00:00:00")), End = Convert.ToDateTime(newItem.DueDate.AddDays(3).ToString("yyyy-MM-dd 23:59:59")), Text = newItem.ShortDescription });
+                AppointmentList.Add(new AppointmentData { Data = newItem.TicketKey, Start = Convert.ToDateTime(newItem.DueDate.ToString("yyyy-MM-dd 00:00:00")), End = Convert.ToDateTime(newItem.DueDate.ToString("yyyy-MM-dd 23:59:59")), Text = newItem.ShortDescription });
             }
         }
 

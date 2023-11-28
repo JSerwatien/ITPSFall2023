@@ -68,10 +68,10 @@ namespace ITPSFall2023.Data.Code
                 throw ex;
             }
         }
-        public static string AddNewNotification(UserEntity currentUser, int notificationTypeKey, string notificationValue, List<NotificationTypeEntity> theTypes)
+        public static string AddNewNotification(UserEntity currentUser, int notificationTypeKey, string notificationValue, List<NotificationTypeEntity> theTypes, int userProfileKey)
         {
             string notificationTypeCode = theTypes.Where(x => x.NotificationTypeKey == notificationTypeKey).FirstOrDefault().NotificationTypeCode;
-            return AddNewNotification(currentUser.UserProfileKey, notificationTypeCode, notificationValue,currentUser);
+            return AddNewNotification(userProfileKey, notificationTypeCode, notificationValue,currentUser);
         }
 
         public static string AddNewNotification(int userProfileKey, string notificationTypeCode, string notificationValue, UserEntity currentUser)

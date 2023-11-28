@@ -34,13 +34,13 @@
                         </a>
                     </li>
                     <li>
-                        <a href="./notifications.html">
+                        <a href="/SendNotification">
                             <i class="now-ui-icons ui-1_send"></i>
                             <p>Send Notification</p>
                         </a>
                     </li>
                     <li>
-                        <a href="./viewNotification.html">
+                        <a href="/Notifications">
                             <i class="now-ui-icons ui-1_email-85"></i>
                             <p>View Notifications</p>
                         </a>
@@ -122,9 +122,9 @@
                                         </p>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                                        <a class="dropdown-item" href="#">Messages <span class="badge badge-pill badge-success">5</span></a>
-                                        <a class="dropdown-item" href="#">Alerts <span class="badge badge-pill badge-success">10</span></a>
-                                        <a class="dropdown-item" href="#">View All Notifications</a>
+                                        <a class="dropdown-item" href="#">Messages <span class="badge badge-pill badge-success">@AppState.CurrentUser.NotificationList.Where(x => x.NotificationTypeCode=="MESSG").Count()</span></a>
+                                        <a class="dropdown-item" href="#">Alerts <span class="badge badge-pill badge-success">@AppState.CurrentUser.NotificationList.Where(x => x.NotificationTypeCode=="ALERT").Count()</span></a>
+                                        <a class="dropdown-item" href="/Notifications">View All Notifications</a>
                                     </div>
                                 </li>
                                 <li class="nav-item">
@@ -164,6 +164,7 @@
     [CascadingParameter]
     public CascadingAppState AppState { get; set; }
     private const string UserCookieName = "CurrentUserInformation";
+    private System.Timers.Timer theTimer = new(300000);
 
     protected override void OnInitialized()
     {
@@ -181,7 +182,8 @@
             }
         }
         dialogService.OnClose += ReloadPage;
-
+        theTimer.Elapsed += (sender, eventsArgs) => OnTimerCallBack();
+        theTimer.Start();
     }
     public void ReloadPage(dynamic theResult)
     {
@@ -190,5 +192,20 @@
     private async void LogOut()
     {
         await JsRuntime.InvokeAsync<string>("Cookies.deleteCookie", UserCookieName);
+    }
+    private void OnTimerCallBack()
+    {
+        RefreshUserData();
+    }
+    private async Task RefreshUserData()
+    {
+        string userName = AppState?.CurrentUser?.UserName;
+        string password = AppState?.CurrentUser?.Password;
+        await InvokeAsync(() =>
+        {
+            AppState.SetProperty(this, "CurrentUser", ITPSFall2023.Data.Code.UserFactory.GetUserInformation(userName, password));
+            StateHasChanged();
+        });
+
     }
 }
