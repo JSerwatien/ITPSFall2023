@@ -66,11 +66,21 @@
             args.Attributes["style"] = "background: rgba(255,220,40,.2);";
         }
 
+        // Highlight today in month view
+        if (args.View.Text == "Month" &&   args.Start.Date == DateTime.Today)
+        {
+            args.Attributes["style"] = "background: green;";
+        }
+
         // Highlight working hours (9-18)
         if ((args.View.Text == "Week" || args.View.Text == "Day") && args.Start.Hour > 8 && args.Start.Hour < 19)
         {
             args.Attributes["style"] = "background: rgba(255,220,40,.2);";
         }
+
+
+
+
     }
     private void OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<AppointmentData> args)
     {
@@ -79,9 +89,20 @@
     void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<AppointmentData> args)
     {
 
-        if (args.Data.Start.Date <= DateTime.Now.Date || (args.Data.Start.Date > DateTime.Now.Date && args.Data.Start.Date < DateTime.Now.Date.AddDays(5)))
+        if (args.Data.Start.Date < DateTime.Now.Date )
         {
-            args.Attributes["style"] = "background: red";
+            args.Attributes["style"] = "background: red; font-weight: bold";
         }
+        else if(args.Data.Start.Date > DateTime.Now.Date && args.Data.Start.Date < DateTime.Now.Date.AddDays(5))
+        {
+            args.Attributes["style"] = "background: yellow; color: black; font-weight: bold";
+
+        }
+        else
+        {
+            args.Attributes["style"] = "font-weight: bold";
+        }
+
+
     }
 }
