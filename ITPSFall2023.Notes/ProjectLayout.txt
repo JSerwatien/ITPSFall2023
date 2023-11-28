@@ -179,7 +179,7 @@ Homework:
 		b)	TicketCalendar
 	3)	Fix login page-to-page issue
 	4)	TicketCalendar page:
-		a)	On Monthly View only, if the logged-in user has tickets do that day, make the background another color (OnSlotRender event)
+		a)	On Monthly View only, if the logged-in user has tickets due that day, make the background another color (OnSlotRender event)
 	5)	Review Notification tables:
 		a)	NotificationActive
 		b)	Notification
@@ -187,9 +187,7 @@ Homework:
 
 
 Classwork:
-	1)	Cascading Parameters
-	2)	Login page
-	3)	Start ticket page
+
 
 Pages:
 	Tickets:
