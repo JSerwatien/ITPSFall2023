@@ -160,3 +160,36 @@ REFERENCES [dbo].[Department] ([DepartmentKey])
 GO
 ALTER TABLE [dbo].[UserProfile] CHECK CONSTRAINT [FK_UserProfile_Department]
 GO
+
+CREATE TABLE [dbo].[SurveyQuestion](
+	[QuestionKey] [int] IDENTITY(1,1) NOT NULL,
+	[Question] [varchar](500) NULL,
+	[ActiveInd] [tinyint] NULL,
+	[SortDisplay] [int] NULL,
+ CONSTRAINT [PK_Question] PRIMARY KEY CLUSTERED 
+(
+	[QuestionKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[SurveyItem](
+	[SurveyItemKey] [int] IDENTITY(1,1) NOT NULL,
+	[SurveyQuestionKey] [int] NULL,
+	[SurveyRating] [int] NULL,
+	[Comments] [varchar](1000) NULL,
+	[TicketKey] [int] NULL,
+	[UserProfileKey] [int] NULL,
+ CONSTRAINT [PK_TicketSurveyItem] PRIMARY KEY CLUSTERED 
+(
+	[SurveyItemKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[SurveyItem]  WITH CHECK ADD  CONSTRAINT [FK_SurveyItem_SurveyQuestion] FOREIGN KEY([UserProfileKey])
+REFERENCES [dbo].[UserProfile] ([UserProfileKey])
+GO
+
+ALTER TABLE [dbo].[SurveyItem] CHECK CONSTRAINT [FK_SurveyItem_SurveyQuestion]
+GO

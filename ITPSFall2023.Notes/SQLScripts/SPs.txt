@@ -494,7 +494,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE PROCEDURE [dbo].[Ticket_SEL]
+ALTER PROCEDURE [dbo].[Ticket_SEL]
 (
        @TicketKey INT
 )
@@ -516,6 +516,13 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 			INNER JOIN Status NS WITH(NOLOCK)
 			ON NS.StatusKey = H.NewStatusKey
 			WHERE TicketKey = @TicketKey
+			--SurveyItem
+			select Q.Question, q.SortDisplay, ISNULL( s.SurveyItemKey,0) as SurveyItemKey, ISNULL( S.SurveyRating, 0) as SurveyRating, ISNULL( s.Comments, '') as Comments
+			FROM SurveyQuestion Q WITH(NOLOCK)
+			LEFT OUTER JOIN SurveyItem S WITH(NOLOCK)
+			ON Q.QuestionKey = S.SurveyQuestionKey
+			WHERE Q.ActiveInd = 1
+			AND S.TicketKey = @TicketKey
 	END TRY
 
   BEGIN CATCH
