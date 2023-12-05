@@ -19,7 +19,26 @@
             @PageModel.ErrorObject.Message
         </div>
     }
-    <h1>Ticket ID: @GetTicketIDForDisplay()</h1>
+     <div class="row">
+        <div class="col-md-6">
+            <div style="float:left"><h1>Ticket ID: @GetTicketIDForDisplay()</h1></div>
+        </div>
+        <div class="col-md-6">
+            @if(PageModel.TicketSurvey!=null && PageModel.TicketSurvey.SurveyItems!=null)
+            {
+            <div style="float:right">
+                @if(PageModel.TicketSurvey.SurveyItems.Sum(x => x.SurveyItemKey)==0)
+                {
+                        <a href="/TicketSurvey/@PageModel.TicketKey">Take the survey</a>
+                }
+                else
+                {
+                    <h4>Survey Average: @PageModel.TicketSurvey.SurveyItems.Average(x => x.SurveyRating)</h4>
+                }
+            </div>
+            }
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-md-6">

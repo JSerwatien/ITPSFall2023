@@ -1,0 +1,67 @@
+﻿@page "/TicketSurvey/{TicketKey}"
+@using ITPSFall2023.Entity
+<div class="container-fluid" style="width:1500px !important">
+    <br />
+    <br />
+    @if (!string.IsNullOrEmpty(PageModel?.PageMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @PageModel.PageMessage
+        </div>
+    }
+    @if (PageModel?.ErrorObject != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @PageModel.ErrorObject.Message
+        </div>
+    }
+    @if (PageModel != null && PageModel.TicketKey > 0)
+    {
+        <h1>Ticket ID: @TicketKey</h1>
+        <h3>@PageModel.ShortDescription</h3>
+        <h4>@PageModel.LongDescription</h4>
+        @foreach(TicketSurveyItemEntity newItem in PageModel.TicketSurvey.SurveyItems)
+        {
+            <div class="row">
+                <div class="col-md-4">
+                    <b>@newItem.SurveyQuestion</b>
+                </div>
+                <div class="col-md-4">
+                    <RadzenRating @bind-Value=newItem.SurveyRating/>
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox Placeholder="Optional Comments..." @bind-Value=newItem.Comments />
+                </div>
+            </div>
+        }
+            <RadzenButton Text="Save" Icon="save" ButtonStyle="ButtonStyle.Success" Style="float:right" Click="() => SaveSurvey()"></RadzenButton>
+    }
+</div>
+@code {
+    [CascadingParameter]
+    public CascadingAppState AppState { get; set; }
+    [Parameter]
+    public string TicketKey { get; set; }
+    private TicketEntity PageModel = new();
+    protected override void OnInitialized()
+    {
+        ValidateTicketKey();
+        if (PageModel.ErrorObject == null)
+        { ReloadModel(); }
+    }
+    private void ReloadModel()
+    {
+        PageModel = ITPSFall2023.Data.Code.TicketFactory.LoadTicket(Convert.ToInt32(TicketKey), AppState.CurrentUser);
+    }
+    private void ValidateTicketKey()
+    {
+        if (string.IsNullOrEmpty(TicketKey))
+        { PageModel.ErrorObject = new("The Ticket Key was missing"); }
+        else if (!ITPSFall2023.Data.Code.LocalFunctions.IsNumeric(TicketKey))
+        { PageModel.ErrorObject = new("The Ticket Key " + ValidateTicketKey + " is invalid"); }
+    }
+    private void SaveSurvey()
+    {
+        
+    }
+}

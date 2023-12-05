@@ -70,12 +70,24 @@ namespace ITPSFall2023.Data.Code
                     returnData = LoadTicketData(ds.Tables[0]);
                     returnData.NoteList = NotesFactory.LoadNotes(ds.Tables[1]);
                     returnData.StatusHistory = StatusFactory.LoadStatusHistory(ds.Tables[2]);
+                    returnData.TicketSurvey = LoadSurveyData(ticketKey);
                 }
             }
             catch (Exception ex)
             {
                 returnData.ErrorObject = ex;
             }
+            return returnData;
+        }
+
+        private static TicketSurveyEntity LoadSurveyData(int ticketKey)
+        {
+            TicketSurveyEntity returnData = new();
+            returnData.SurveyItems = new();
+            returnData.SurveyItems.Add(new() { SurveyQuestion = "Question 1" });
+            returnData.SurveyItems.Add(new() { SurveyQuestion = "Question 2" });
+            returnData.SurveyItems.Add(new() { SurveyQuestion = "Question 3" });
+            returnData.SurveyItems.Add(new() { SurveyQuestion = "Question 4" });
             return returnData;
         }
 

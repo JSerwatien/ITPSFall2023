@@ -34,5 +34,6 @@ namespace ITPSFall2023.Entity
         public List<TicketNoteEntity> NoteList { get; set; }
         public Exception ErrorObject { get; set; }
         public string PageMessage { get; set; }
+        public TicketSurveyEntity TicketSurvey { get; set; } = new();
     }
 }
