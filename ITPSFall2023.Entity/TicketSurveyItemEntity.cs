@@ -6,5 +6,6 @@
         public int SurveyRating { get; set; }
         public int SurveyItemKey { get; set; }
         public string Comments { get; set; }
+        public int SortDisplay { get; set; }
     }
 }

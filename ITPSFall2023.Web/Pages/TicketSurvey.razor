@@ -1,5 +1,11 @@
-﻿@page "/TicketSurvey/{TicketKey}"
+﻿@page "/TicketSurvey"
+@page "/TicketSurvey/{TicketKey}"
+@inject Radzen.DialogService dialogService
+@using Radzen
+@inject IJSRuntime JsRuntime;
 @using ITPSFall2023.Entity
+@using ITPSFall2023.Data.Code
+@inject Radzen.NotificationService notificationService
 <div class="container-fluid" style="width:1500px !important">
     <br />
     <br />
@@ -30,7 +36,7 @@
                     <RadzenRating @bind-Value=newItem.SurveyRating/>
                 </div>
                 <div class="col-md-4">
-                    <RadzenTextBox Placeholder="Optional Comments..." @bind-Value=newItem.Comments />
+                    <RadzenTextBox Placeholder="Optional Comments..." @bind-Value=newItem.Comments class="form-control" />
                 </div>
             </div>
         }
@@ -38,14 +44,14 @@
     }
 </div>
 @code {
-    [CascadingParameter]
-    public CascadingAppState AppState { get; set; }
     [Parameter]
     public string TicketKey { get; set; }
+    [CascadingParameter]
+    public CascadingAppState AppState { get; set; }
     private TicketEntity PageModel = new();
     protected override void OnInitialized()
     {
-        ValidateTicketKey();
+         ValidateTicketKey();
         if (PageModel.ErrorObject == null)
         { ReloadModel(); }
     }
@@ -64,4 +70,5 @@
     {
         
     }
+   
 }

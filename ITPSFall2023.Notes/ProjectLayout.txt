@@ -167,13 +167,14 @@ Notes:
 	Template:	https://demos.creative-tim.com/now-ui-dashboard/examples/dashboard.html?_ga=2.217200534.1415108639.1697540512-1924406482.1697540512&_gl=1*g3hltm*_ga*MTkyNDQwNjQ4Mi4xNjk3NTQwNTEy*_ga_LMRL06STSS*MTY5NzU0MDUxMi4xLjEuMTY5NzU0MDU1MC4yMi4wLjA.
 Homework:
 	1)	Run SPs:
-		a)	Notification_AddNotification
-		b)	Notification_GetAllNotifications
-		c)	Notification_MarkAsRead
-	2)	Review Razor pages:
-		a)	SendNotification
-		b)	Notifications
-	3)	Come up with a new page/functionality that would make the site more useful (https://blazor.radzen.com/datagrid-group-footer-template)
+		a)	Ticket_SEL
+		b)	Create Survey tables
+			i)	SurveyQuestion
+			ii)	SurveyItem
+	2)	Navigation not working to survey page
+	3)	In TicketFactory, pass table of survey questions to loading function.  Make sure to add any values coming back from the DB to the objects.
+	4)	Create SP for insert/update Items to DB (like Ticket_UPTINS)
+	5)	Create factory method to save items (calling SP from #4) in TicketFactory
 
 
 
