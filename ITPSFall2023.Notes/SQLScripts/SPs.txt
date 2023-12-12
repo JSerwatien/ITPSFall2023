@@ -490,12 +490,6 @@ GO
 USE [ITPSFall2023]
 GO
 /****** Object:  StoredProcedure [dbo].[Ticket_SEL]    Script Date: 12/12/2023 5:32:39 AM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
 ALTER PROCEDURE [dbo].[Ticket_SEL]
 (
        @TicketKey INT
@@ -519,13 +513,22 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 			ON NS.StatusKey = H.NewStatusKey
 			WHERE TicketKey = @TicketKey
 			--SurveyItem
-			select S.QuestionKey, Q.Question, q.SortDisplay, ISNULL( s.SurveyItemKey,0) as SurveyItemKey, ISNULL( S.SurveyRating, 0) as SurveyRating, ISNULL( s.Comments, '') as Comments
-			FROM SurveyQuestion Q WITH(NOLOCK)
-			LEFT OUTER JOIN SurveyItem S WITH(NOLOCK)
-			ON Q.QuestionKey = S.SurveyQuestionKey
-			WHERE Q.ActiveInd = 1
-			AND (S.TicketKey = @TicketKey or s.TicketKey IS NULL)
-	END TRY
+			IF (SELECT COUNT(*) C FROM SurveyItem WITH(NOLOCK) WHERE TicketKey = @TicketKey)>0
+			BEGIN
+				SELECT Q.QuestionKey, Q.Question, Q.SortDisplay, ISNULL( s.SurveyItemKey,0) SurveyItemKey, ISNULL( S.SurveyRating, 0) SurveyRating, ISNULL( s.Comments, '') Comments
+				FROM SurveyQuestion Q WITH(NOLOCK)
+				LEFT OUTER JOIN SurveyItem S WITH(NOLOCK)
+				ON Q.QuestionKey = S.SurveyQuestionKey
+				WHERE Q.ActiveInd = 1
+				AND (S.TicketKey = @TicketKey OR s.TicketKey IS NULL)
+			END
+			ELSE
+			BEGIN
+				SELECT Q.QuestionKey, Q.Question, Q.SortDisplay, 0 SurveyItemKey, 0 SurveyRating, '' Comments
+				FROM SurveyQuestion Q WITH(NOLOCK)
+				WHERE Q.ActiveInd = 1
+			END
+END TRY
 	
   BEGIN CATCH
            DECLARE @ErrorNumber INT,  @ErrorSeverity INT,

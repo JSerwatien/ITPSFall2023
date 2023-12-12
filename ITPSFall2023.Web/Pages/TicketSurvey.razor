@@ -5,7 +5,6 @@
 @inject IJSRuntime JsRuntime;
 @using ITPSFall2023.Entity
 @using ITPSFall2023.Data.Code
-@inject Radzen.NotificationService notificationService
 <div class="container-fluid" style="width:1500px !important">
     <br />
     <br />
@@ -56,6 +55,11 @@
         if (PageModel.ErrorObject == null && AppState.CurrentUser!=null)
         { ReloadModel(); }
     }
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        ReloadModel();
+    }
     private void ReloadModel()
     {
         PageModel = ITPSFall2023.Data.Code.TicketFactory.LoadTicket(Convert.ToInt32(TicketKey), AppState.CurrentUser);
@@ -72,26 +76,26 @@
     {
         PageModel = ITPSFall2023.Data.Code.TicketFactory.SaveSurveyItems(PageModel, AppState.CurrentUser);
     }
-    private async void TryAutoLogin()
-    {
-        try
-        {
-            if (!string.IsNullOrEmpty(AppState.UserName))
-            {
-                AppState.SetProperty(this, "CurrentUser", ITPSFall2023.Data.Code.UserFactory.GetUserInformation(AppState.UserName,AppState.PassWord));
-            }
-        }
-        catch (Exception ex)
-        {
-            AppState.CurrentUser.ErrorMessage = ex.Message;
-        }
-    }
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            if (AppState.CurrentUser == null) { TryAutoLogin(); ReloadModel(); }
-        }
-    }
+    //private async void TryAutoLogin()
+    //{
+    //    try
+    //    {
+    //        if (!string.IsNullOrEmpty(AppState.UserName))
+    //        {
+    //            AppState.SetProperty(this, "CurrentUser", ITPSFall2023.Data.Code.UserFactory.GetUserInformation(AppState.UserName,AppState.PassWord));
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        AppState.CurrentUser.ErrorMessage = ex.Message;
+    //    }
+    //}
+    //protected override void OnAfterRender(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        if (AppState.CurrentUser == null) { TryAutoLogin(); ReloadModel(); }
+    //    }
+    //}
 
 }

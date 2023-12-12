@@ -6,6 +6,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base href="~/" />
     <meta charset="utf-8" />
     <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon.png">
     <link rel="icon" type="image/png" href="img/favicon.png">
@@ -23,6 +24,7 @@
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link href="demo/demo.css" rel="stylesheet" />
     <link rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css">
+    <link rel="stylesheet" href="_content/Radzen.Blazor/css/standard-base.css">
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
     <script>
         var Cookies = {
@@ -134,7 +136,16 @@
 </head>
 <body>
     <component type="typeof(App)" render-mode="ServerPrerendered" />
-    <!--   Core JS Files   -->
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>    <!--   Core JS Files   -->
     <script src="../js/core/jquery.min.js"></script>
     <script src="../js/core/popper.min.js"></script>
     <script src="../js/core/bootstrap.min.js"></script>
@@ -155,11 +166,11 @@
                 //    demo.initDashboardPageCharts();
                 //}
     </script>
-    <script src="/_framework/blazor.server.js"></script>
-    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
     <script src="../js/plugins/chartjs.min.js" defer></script>
     <script src="../demo/demo.js" defer></script>
     <script src="../js/ChartFunctions.js" defer></script>
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
+    <script src="/_framework/blazor.server.js"></script>
     <script>
         
         function getPageReferrer() {

@@ -65,29 +65,28 @@
     bool RememberMe = false;
     protected override void OnInitialized()
     {
-        AppState.SetProperty(this, "CurrentUser", new ITPSFall2023.Entity.UserEntity());
+        AppState.SetProperty(this, "CurrentUser", new UserEntity());
+        TryAutoLogin();
     }
     private async void TryAutoLogin()
     {
         try
         {
-           
-                CookieValue = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", UserCookieName);
+            CookieValue = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", UserCookieName);
 
-                //cookieValue = ITPS.Data.Code.EncryptionFactory.EncryptString("joshs|joshs");
-                if (!string.IsNullOrEmpty(CookieValue) && CookieValue != "|")
+            //cookieValue = ITPS.Data.Code.EncryptionFactory.EncryptString("joshs|joshs");
+            if (!string.IsNullOrEmpty(CookieValue))
+            {
+                CookieValue = ITPSFall2023.Data.Code.EncryptionFactory.DecryptString(CookieValue);
+                if (!string.IsNullOrEmpty(CookieValue))
                 {
-                    CookieValue = ITPSFall2023.Data.Code.EncryptionFactory.DecryptString(CookieValue);
-                    if (!string.IsNullOrEmpty(CookieValue))
-                    {
-                        var userArray = CookieValue.Split("|");
-                        UserName = userArray[0].ToString();
-                        Password = userArray[1].ToString();
-                        RememberMe = true;
-                        LogUserIn();
-                    }
+                    var userArray = CookieValue.Split("|");
+                    UserName = userArray[0].ToString();
+                    Password = userArray[1].ToString();
+                    RememberMe = true;
+                    LogUserIn();
                 }
-            
+            }
         }
         catch (Exception ex)
         {
@@ -112,15 +111,12 @@
         RefreshMainLayout();
         if (string.IsNullOrEmpty(AppState.CurrentUser.ErrorMessage))
         {
-            AppState.UserName = UserName;
-            AppState.PassWord = Password;
             if (RememberMe) { SaveCookie(); }
-            NavManager.NavigateTo("/");
+            NavManager.NavigateTo("/", false);
         }
         else
         { notificationService.Notify(Radzen.NotificationSeverity.Error, "Error Logging In", AppState.CurrentUser.ErrorMessage, 3000); }
     }
-
     private async void RefreshMainLayout()
     {
         await InvokeAsync(StateHasChanged);
@@ -129,11 +125,11 @@
     {
         base.OnAfterRender(firstRender);
         {
-            TryAutoLogin();
+
         }
     }
     private void PopForgotPassword()
     {
-        //DialogService.Open<Pages.Popups.ForgotPassword>("Forgot Password", null,new DialogOptions() { Width = "800px", Height = "600px", Resizable = true, Draggable = true });
+        //DialogService.Open<Pages.Popups.ForgotPassword>("Forgot Password", null, new DialogOptions() { Width = "800px", Height = "600px", Resizable = true, Draggable = true });
     }
 }

@@ -3,6 +3,7 @@
 @inject Radzen.DialogService dialogService
 @inject Radzen.NotificationService notificationService
 @inject IJSRuntime JsRuntime
+@using ITPSFall2023.Data.Code
 <PageTitle>ITPSFall2023.Web</PageTitle>
 
 <div class="page">
@@ -168,35 +169,35 @@
 @code {
     [CascadingParameter]
     public CascadingAppState AppState { get; set; }
-    private const string UserCookieName = "CurrentUserInformation";
+    private string JumpToTicketKey = string.Empty;
+    private string searchMessage;
+    private string PageMessage = string.Empty;
     private System.Timers.Timer theTimer = new(300000);
-
+    private const string UserCookieName = "CurrentUserInformation";
+    private ErrorBoundary? TheErrorBoundry;
+    private bool HideErrorPopup = false;
     protected override void OnInitialized()
     {
-        //if ((AppState.CurrentUser == null || AppState.CurrentUser.UserProfileKey == 0) && !NavManager.Uri.ToUpper().Contains("/LOGIN") && !NavManager.Uri.ToUpper().Contains("/TICKETSURVEY"))
-        //{
-        //    AppState.SetProperty(this, "CurrentUser", new());
-        //    try
-        //    {
-        //        NavManager.NavigateTo("/Login");
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
+        if (AppState.CurrentUser == null && !NavManager.Uri.ToUpper().Contains("/LOGIN"))
+        {
+            //NavManager.NavigateTo("/Login");
+        }
         dialogService.OnClose += ReloadPage;
         theTimer.Elapsed += (sender, eventsArgs) => OnTimerCallBack();
         theTimer.Start();
     }
-    public void ReloadPage(dynamic theResult)
+    protected override void OnParametersSet()
     {
-        StateHasChanged();
+        TheErrorBoundry?.Recover();
     }
-    private async void LogOut()
+    private bool ShowCloseableFromOverlayDialog(Exception ex)
     {
-        await JsRuntime.InvokeAsync<string>("Cookies.deleteCookie", UserCookieName);
+        if (!HideErrorPopup)
+        {
+            dialogService.Alert("A general error has occurred: " + ex.Message, "Unexpected Error", new AlertOptions() { OkButtonText = "OK", CloseDialogOnEsc = true, ShowClose = true, Draggable = true });
+            HideErrorPopup = true;
+        }
+        return true;
     }
     private void OnTimerCallBack()
     {
@@ -212,5 +213,61 @@
             StateHasChanged();
         });
 
+    }
+    public void ReloadPage(dynamic theResult)
+    {
+        StateHasChanged();
+    }
+    private void SearchForTicket()
+    {
+        searchMessage = string.Empty;
+        if (ITPSFall2023.Data.Code.LocalFunctions.IsNumeric(JumpToTicketKey))
+        { NavManager.NavigateTo("/ticket/" + JumpToTicketKey); }
+        else
+        {
+            List<int> TicketArray = new List<int>();
+            string description = JumpToTicketKey;
+            TicketArray = ITPSFall2023.Data.Code.TicketFactory.GetTicketByDescription(description, AppState.CurrentUser);
+            if (TicketArray.Count() > 1)
+            {
+                searchMessage = "<b>There were too many tickets found. Please refine your search.</b>";
+            }
+            else if (TicketArray.Count() == 1)
+            {
+                NavManager.NavigateTo("/ticket/" + TicketArray[0]);
+            }
+            else
+            {
+                searchMessage = "Sorry no items matched your search.";
+            }
+        }
+    }
+    private void GetQuote()
+    {
+        Random theRandom = new Random();
+        int randomNumber = theRandom.Next(1, 3);
+        if (randomNumber == 1)
+        { PageMessage = QuoteFactory.GetRandomQuote(); }
+        else
+        { PageMessage = QuoteFactory.GetRandomJoke(); }
+    }
+    private void UpdateNotificationToRead(NotificationEntity theNotification)
+    {
+        try
+        {
+            if (theNotification.ReadDateTime == DateTime.MinValue)
+            {
+                NotificationFactory.UpdateNotificationToRead(theNotification, AppState.CurrentUser);
+                RefreshUserData();
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    private async void LogOut()
+    {
+        await JsRuntime.InvokeAsync<string>("Cookies.deleteCookie", UserCookieName);
     }
 }
