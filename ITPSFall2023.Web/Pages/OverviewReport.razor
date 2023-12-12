@@ -1,0 +1,98 @@
+﻿@page "/OverviewReport"
+@inject Radzen.DialogService dialogService
+@using Radzen
+@using ITPSFall2023.Entity
+@using ITPSFall2023.Data.Code
+<div class="container-fluid" style="width:1500px !important">
+    <br />
+    <br />
+    @if (!string.IsNullOrEmpty(PageModel?.PageMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @PageModel.PageMessage
+        </div>
+    }
+    @if (PageModel?.ErrorObject != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @PageModel.ErrorObject.Message
+        </div>
+    }
+    <div class="row">
+        <div class="col-md-6">
+            <RadzenChart Style="float:left">
+                <RadzenColumnSeries Data="@PageModel.DepartmentCompletionData" CategoryProperty="DisplayValue" ValueProperty="DataCount" />
+            </RadzenChart>
+        </div>
+        <div class="col-md-6">
+            <h3>Filter Bank</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <b>From Date: </b>
+                </div>
+                <div class="col-md-6">
+                    <RadzenDatePicker TValue="DateTime" @bind-Value="@FromDate" DateFormat="yyyy-MM-dd" style="float:right; width:100%" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <b>Thru Date: </b>
+                </div>
+                <div class="col-md-6">
+                    <RadzenDatePicker TValue="DateTime" @bind-Value="@ThruDate" DateFormat="yyyy-MM-dd" style="float:right; width:100%" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <b>Show Open: </b>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <RadzenCheckBox Style="float:right"  TriState=true @bind-Value=@ShowOpenStatus Change=@((bool? args) => SetStatusLabel()) class="form-control" />
+                        </div>
+                        <div class="col-md-10">
+                            <span style="float:right"><b>@StatusState</b></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <RadzenButton Click=@(args => ReloadModel()) Text="Refresh" style="float:right" Icon="refresh" ButtonStyle="ButtonStyle.Success" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <center>
+                <RadzenDataGrid @ref="ticketGrid" AllowGrouping="true" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+                                Data="@PageModel.DetailData" TItem="TicketEntity">
+                    <Columns>
+
+                    </Columns>
+                </RadzenDataGrid>
+            </center>
+        </div>
+    </div>
+</div>
+
+@code {
+    private OverviewReportEntity PageModel = new();
+    private RadzenDataGrid<TicketEntity> ticketGrid;
+    private DateTime FromDate = @DateTime.Now.AddMonths(1);
+    private DateTime ThruDate = @DateTime.Now;
+    private bool? ShowOpenStatus;
+    private string StatusState = "Show All";
+    private void SetStatusLabel()
+    {
+        if (ShowOpenStatus == null)
+        { StatusState = "Show All"; }
+        else if ((bool)ShowOpenStatus)
+        { StatusState = "Show Open"; }
+        else
+        { StatusState = "Show Closed"; }
+        StateHasChanged();
+    }
+    private void ReloadModel()
+    {
+
+    }
+}

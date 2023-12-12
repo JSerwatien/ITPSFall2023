@@ -93,8 +93,11 @@ namespace ITPSFall2023.Data.Code
                 {
                     TicketSurveyItemEntity ticketSurveyEntity = new();
                     ticketSurveyEntity.SurveyQuestion = dr["Question"].ToString();
+                    ticketSurveyEntity.Comments = dr["Comments"].ToString();
                     ticketSurveyEntity.SortDisplay = Convert.ToInt32(dr["SortDisplay"]);
                     ticketSurveyEntity.SurveyItemKey = Convert.ToInt32(dr["SurveyItemKey"]);
+                    ticketSurveyEntity.SurveyQuestionKey = Convert.ToInt32(dr["QuestionKey"]);
+                    ticketSurveyEntity.SurveyRating = Convert.ToInt32(dr["SurveyRating"]);
                     surveyItems.Add(ticketSurveyEntity);
                 }
 
@@ -189,21 +192,37 @@ namespace ITPSFall2023.Data.Code
 
         private static string GetSaveSQL(TicketEntity theTicket, UserEntity currentUser)
         {
-            string returnData = "EXEC dbo.Survey_UPTINS {0}, {1},{2},'{3}', '{4}', {5},{6},'{7}', '{8}'";
+            string returnData = "EXEC dbo.Ticket_UPTINS {0}, {1},{2},'{3}', '{4}', {5},{6},'{7}', '{8}'";
             var openStatus = currentUser.StartupObjects.Statuses.Where(x => x.StatusCode == "OPEN").FirstOrDefault();
             returnData = string.Format(returnData, theTicket.TicketKey, theTicket.UserProfileKey == 0 ? currentUser.UserProfileKey : theTicket.UserProfileKey,
                     theTicket.AssignedToUserProfileKey, theTicket.ShortDescription.Replace("'", "''"), theTicket.LongDescription.Replace("'", "''"),
                     theTicket.Priority, theTicket.StatusKey == 0 ? openStatus.StatusCodeKey : theTicket.StatusKey, theTicket.DueDate, currentUser.UserName);
             return returnData;
         }
-
-       private static string GetSaveSQL(TicketSurveyEntity TheSurvey, UserEntity currentUser)
+        public static TicketEntity SaveSurveyItems(TicketEntity theTicket, UserEntity currentUser)
         {
-            string returnData = "EXEC dbo.Survey_UPTINS {0}, {1},{2},'{3}', '{4}', {5},{6},'{7}', '{8}'";
-            var openStatus = currentUser.StartupObjects.Statuses.Where(x => x.StatusCode == "OPEN").FirstOrDefault();
-            returnData = string.Format(returnData, TheSurvey.TicketKey, 
-                    TheSurvey.AssignedToUserProfileKey, TheSurvey.ShortDescription.Replace("'", "''"), TheSurvey.LongDescription.Replace("'", "''"),
-                    TheSurvey.Priority, TheSurvey.StatusKey == 0 ? openStatus.StatusCodeKey : TheSurvey.StatusKey, TheSurvey.DueDate, currentUser.UserName);
+            string strSQL = string.Empty;
+            try
+            {
+                foreach(TicketSurveyItemEntity newItem in theTicket.TicketSurvey.SurveyItems)
+                {
+                    strSQL = GetSaveSurveyItemSQL(newItem, theTicket.TicketKey, currentUser);
+                    DataFactory.GetDataSet(strSQL, "SavedSurveyItem", currentUser);
+                }
+                theTicket.PageMessage = "Your survey results were saved successfully!";
+                theTicket.ErrorObject = null;
+            }
+            catch (Exception ex)
+            {
+                theTicket.ErrorObject = ex;
+            }
+            return theTicket;
+        }
+        private static string GetSaveSurveyItemSQL(TicketSurveyItemEntity theSurvey,int ticketKey, UserEntity currentUser)
+        {
+            string returnData = "EXEC dbo.SurveyItem_UPTIN {0},{1},{2},'{3}',{4},{5}";
+            returnData = string.Format(returnData, theSurvey.SurveyItemKey, theSurvey.SurveyQuestionKey,
+                    theSurvey.SurveyRating, (theSurvey.Comments + "").Replace("'", "''"), ticketKey, currentUser.UserProfileKey);
             return returnData;
         }
         public static List<TicketEntity> GetReportData(UserEntity currentUser)
@@ -297,7 +316,7 @@ namespace ITPSFall2023.Data.Code
                 returnData.RawData = DataFactory.GetDataSet(strSQL, "OverviewData", currentUser);
                 foreach(DataRow newRow in returnData.RawData.Tables[2].Rows)
                 { returnData.DetailData.Add(LoadSummaryTicketFromDataRow(newRow)); }
-                returnData.AssignedToData = LoadOverviewChartList(returnData.RawData.Tables[0]);
+                //returnData.AssignedToData = LoadOverviewChartList(returnData.RawData.Tables[0]);
                 returnData.StatusData = LoadOverviewChartList(returnData.RawData.Tables[1]);
             }
             catch (Exception ex)

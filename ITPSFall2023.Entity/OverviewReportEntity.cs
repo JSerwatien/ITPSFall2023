@@ -12,9 +12,10 @@ namespace ITPSFall2023.Entity
     {
         public List<TicketEntity> DetailData { get; set; }
         public DataSet RawData { get;set;}
-        public List<OverviewChartEntity> AssignedToData { get; set; }
+        public List<OverviewChartEntity> DepartmentCompletionData { get; set; }
         public List <OverviewChartEntity> StatusData { get; set; }
         public Exception ErrorObject { get; set; }
+        public string PageMessage { get; set; }
     }
     public class OverviewChartEntity
     {

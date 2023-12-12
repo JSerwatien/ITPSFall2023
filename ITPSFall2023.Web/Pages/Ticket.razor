@@ -33,7 +33,14 @@
                 }
                 else
                 {
-                    <h4>Survey Average: @PageModel.TicketSurvey.SurveyItems.Average(x => x.SurveyRating)</h4>
+                    <h4>Survey Average: @Math.Round(PageModel.TicketSurvey.SurveyItems.Average(x => x.SurveyRating),2)</h4>
+                        <div class="progress" style="background-color:white">
+                            <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar"
+                         aria-valuenow="@PageModel.TicketSurvey.SurveyItems.Average(x => x.SurveyRating)" aria-valuemin="0" aria-valuemax="5" 
+                         style="width:@GetSurveyResultsPercentage()%">
+                                @Math.Round(PageModel.TicketSurvey.SurveyItems.Average(x => x.SurveyRating),2) out of 5
+                            </div>
+                        </div>
                 }
             </div>
             }
@@ -220,5 +227,9 @@
         {
             if (AppState.CurrentUser != null) { AppState.SetProperty(this, "CurrentUser", ITPSFall2023.Data.Code.UserFactory.GetUserInformation(AppState.CurrentUser.UserName, AppState.CurrentUser.Password)); }
         }
+    }
+    private int GetSurveyResultsPercentage()
+    {
+        return Convert.ToInt16( (PageModel.TicketSurvey.SurveyItems.Average(x => x.SurveyRating) / 5) * 100);
     }
 }

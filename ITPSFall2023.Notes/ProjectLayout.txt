@@ -168,13 +168,16 @@ Notes:
 Homework:
 	1)	Run SPs:
 		a)	Ticket_SEL
-		b)	Create Survey tables
-			i)	SurveyQuestion
-			ii)	SurveyItem
+		b)	SurveyItem_UPTIN
 	2)	Navigation not working to survey page
-	3)	In TicketFactory, pass table of survey questions to loading function.  Make sure to add any values coming back from the DB to the objects.
-	4)	Create SP for insert/update Items to DB (like Ticket_UPTINS)
-	5)	Create factory method to save items (calling SP from #4) in TicketFactory
+	3)	Fix tristate checkbox label error
+	4)	Write SP to load overview report (returns data for bar chart and data grid).  Should include filters for:
+		a)	From Date
+		b)	Thru Date
+		c)	Open Status Ind:
+			i)	Open
+			ii)	Closed
+			iii)	All
 
 
 

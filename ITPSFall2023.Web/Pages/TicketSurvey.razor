@@ -70,7 +70,7 @@
     }
     private void SaveSurvey()
     {
-        
+        PageModel = ITPSFall2023.Data.Code.TicketFactory.SaveSurveyItems(PageModel, AppState.CurrentUser);
     }
     private async void TryAutoLogin()
     {
