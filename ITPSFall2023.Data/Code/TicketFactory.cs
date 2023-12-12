@@ -189,7 +189,7 @@ namespace ITPSFall2023.Data.Code
 
         private static string GetSaveSQL(TicketEntity theTicket, UserEntity currentUser)
         {
-            string returnData = "EXEC dbo.Ticket_UPTINS {0}, {1},{2},'{3}', '{4}', {5},{6},'{7}', '{8}'";
+            string returnData = "EXEC dbo.Survey_UPTINS {0}, {1},{2},'{3}', '{4}', {5},{6},'{7}', '{8}'";
             var openStatus = currentUser.StartupObjects.Statuses.Where(x => x.StatusCode == "OPEN").FirstOrDefault();
             returnData = string.Format(returnData, theTicket.TicketKey, theTicket.UserProfileKey == 0 ? currentUser.UserProfileKey : theTicket.UserProfileKey,
                     theTicket.AssignedToUserProfileKey, theTicket.ShortDescription.Replace("'", "''"), theTicket.LongDescription.Replace("'", "''"),
@@ -197,7 +197,7 @@ namespace ITPSFall2023.Data.Code
             return returnData;
         }
 
-       /* private static string GetSaveSQL(TicketSurveyEntity TheSurvey, UserEntity currentUser)
+       private static string GetSaveSQL(TicketSurveyEntity TheSurvey, UserEntity currentUser)
         {
             string returnData = "EXEC dbo.Survey_UPTINS {0}, {1},{2},'{3}', '{4}', {5},{6},'{7}', '{8}'";
             var openStatus = currentUser.StartupObjects.Statuses.Where(x => x.StatusCode == "OPEN").FirstOrDefault();
@@ -205,7 +205,7 @@ namespace ITPSFall2023.Data.Code
                     TheSurvey.AssignedToUserProfileKey, TheSurvey.ShortDescription.Replace("'", "''"), TheSurvey.LongDescription.Replace("'", "''"),
                     TheSurvey.Priority, TheSurvey.StatusKey == 0 ? openStatus.StatusCodeKey : TheSurvey.StatusKey, TheSurvey.DueDate, currentUser.UserName);
             return returnData;
-        }*/
+        }
         public static List<TicketEntity> GetReportData(UserEntity currentUser)
         {
             List<TicketEntity> returnData = new();
