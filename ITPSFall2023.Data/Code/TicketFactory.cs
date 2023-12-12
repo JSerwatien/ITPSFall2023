@@ -70,7 +70,8 @@ namespace ITPSFall2023.Data.Code
                     returnData = LoadTicketData(ds.Tables[0]);
                     returnData.NoteList = NotesFactory.LoadNotes(ds.Tables[1]);
                     returnData.StatusHistory = StatusFactory.LoadStatusHistory(ds.Tables[2]);
-                    returnData.TicketSurvey = LoadSurveyData(ticketKey, null);
+                    returnData.TicketSurvey = LoadSurveyData(ticketKey, ds.Tables[3]);
+                    
                 }
             }
             catch (Exception ex)
@@ -83,11 +84,28 @@ namespace ITPSFall2023.Data.Code
         private static TicketSurveyEntity LoadSurveyData(int ticketKey, DataTable theData)
         {
             TicketSurveyEntity returnData = new();
-            returnData.SurveyItems = new();
-            returnData.SurveyItems.Add(new() { SurveyQuestion = "Question 1", SurveyRating=1 });
-            returnData.SurveyItems.Add(new() { SurveyQuestion = "Question 2", SurveyRating = 2 });
-            returnData.SurveyItems.Add(new() { SurveyQuestion = "Question 3", SurveyRating = 3 });
-            returnData.SurveyItems.Add(new() { SurveyQuestion = "Question 4", SurveyRating = 4 });
+            try
+            {
+               
+                 returnData.TicketKey = ticketKey;
+                List<TicketSurveyItemEntity> surveyItems = new();
+                foreach (DataRow dr in theData.Rows)
+                {
+                    TicketSurveyItemEntity ticketSurveyEntity = new();
+                    ticketSurveyEntity.SurveyQuestion = dr["Question"].ToString();
+                    ticketSurveyEntity.SortDisplay = Convert.ToInt32(dr["SortDisplay"]);
+                    ticketSurveyEntity.SurveyItemKey = Convert.ToInt32(dr["SurveyItemKey"]);
+                    surveyItems.Add(ticketSurveyEntity);
+                }
+
+                returnData.SurveyItems = surveyItems;
+            
+
+            }
+            catch (Exception ex)
+            {
+                returnData.ErrorObject = ex;
+            }
             return returnData;
         }
 
@@ -171,11 +189,21 @@ namespace ITPSFall2023.Data.Code
 
         private static string GetSaveSQL(TicketEntity theTicket, UserEntity currentUser)
         {
-            string returnData = "EXEC dbo.Ticket_UPTINS {0}, {1},{2},'{3}', '{4}', {5},{6},'{7}', '{8}'";
+            string returnData = "EXEC dbo.Survey_UPTINS {0}, {1},{2},'{3}', '{4}', {5},{6},'{7}', '{8}'";
             var openStatus = currentUser.StartupObjects.Statuses.Where(x => x.StatusCode == "OPEN").FirstOrDefault();
             returnData = string.Format(returnData, theTicket.TicketKey, theTicket.UserProfileKey == 0 ? currentUser.UserProfileKey : theTicket.UserProfileKey,
                     theTicket.AssignedToUserProfileKey, theTicket.ShortDescription.Replace("'", "''"), theTicket.LongDescription.Replace("'", "''"),
                     theTicket.Priority, theTicket.StatusKey == 0 ? openStatus.StatusCodeKey : theTicket.StatusKey, theTicket.DueDate, currentUser.UserName);
+            return returnData;
+        }
+
+       private static string GetSaveSQL(TicketSurveyEntity TheSurvey, UserEntity currentUser)
+        {
+            string returnData = "EXEC dbo.Survey_UPTINS {0}, {1},{2},'{3}', '{4}', {5},{6},'{7}', '{8}'";
+            var openStatus = currentUser.StartupObjects.Statuses.Where(x => x.StatusCode == "OPEN").FirstOrDefault();
+            returnData = string.Format(returnData, TheSurvey.TicketKey, 
+                    TheSurvey.AssignedToUserProfileKey, TheSurvey.ShortDescription.Replace("'", "''"), TheSurvey.LongDescription.Replace("'", "''"),
+                    TheSurvey.Priority, TheSurvey.StatusKey == 0 ? openStatus.StatusCodeKey : TheSurvey.StatusKey, TheSurvey.DueDate, currentUser.UserName);
             return returnData;
         }
         public static List<TicketEntity> GetReportData(UserEntity currentUser)
@@ -244,6 +272,8 @@ namespace ITPSFall2023.Data.Code
             }
             return returnData;
         }
+        
+
         public static void RemoveNote(int noteKey, UserEntity currentUser)
         {
             string strSQL = "EXEC dbo.Note_UPTActiveInd {0},{1}";
