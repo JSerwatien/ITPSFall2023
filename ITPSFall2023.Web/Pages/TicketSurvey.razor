@@ -23,7 +23,7 @@
     }
     @if (PageModel != null && PageModel.TicketKey > 0)
     {
-        <h1>Ticket ID: @TicketKey</h1>
+        <h1>Ticket ID: <a href="/ticket/@TicketKey">@TicketKey</a></h1>
         <h3>@PageModel.ShortDescription</h3>
         <h4>@PageModel.LongDescription</h4>
         @foreach(TicketSurveyItemEntity newItem in PageModel.TicketSurvey.SurveyItems)
@@ -51,13 +51,15 @@
     private TicketEntity PageModel = new();
     protected override void OnInitialized()
     {
-         ValidateTicketKey();
-        if (PageModel.ErrorObject == null)
+        //TryAutoLogin();
+        ValidateTicketKey();
+        if (PageModel.ErrorObject == null && AppState.CurrentUser!=null)
         { ReloadModel(); }
     }
     private void ReloadModel()
     {
         PageModel = ITPSFall2023.Data.Code.TicketFactory.LoadTicket(Convert.ToInt32(TicketKey), AppState.CurrentUser);
+        StateHasChanged();
     }
     private void ValidateTicketKey()
     {
@@ -70,5 +72,26 @@
     {
         
     }
-   
+    private async void TryAutoLogin()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(AppState.UserName))
+            {
+                AppState.SetProperty(this, "CurrentUser", ITPSFall2023.Data.Code.UserFactory.GetUserInformation(AppState.UserName,AppState.PassWord));
+            }
+        }
+        catch (Exception ex)
+        {
+            AppState.CurrentUser.ErrorMessage = ex.Message;
+        }
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (AppState.CurrentUser == null) { TryAutoLogin(); ReloadModel(); }
+        }
+    }
+
 }

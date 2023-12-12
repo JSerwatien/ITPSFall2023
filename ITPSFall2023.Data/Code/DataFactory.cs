@@ -17,6 +17,7 @@ namespace ITPSFall2023.Data.Code
             try
             {
                 DataSet ds = new DataSet();
+                //if (currentUser == null) { currentUser = new(); currentUser.DataToken= EncryptionFactory.EncryptString(DateTime.Now.ToString()); }
                 if (IsValidDataToken(currentUser.DataToken))
                 {
                     SqlDataAdapter sqlAdapter = new SqlDataAdapter(strSQL, connectionString);

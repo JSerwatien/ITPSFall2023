@@ -145,7 +145,12 @@
                 <canvas id="bigDashboardChart"></canvas>
             </div>
             <div class="content">
-                @Body
+                @if (AppState.CurrentUser != null && AppState.CurrentUser.UserProfileKey > 0)
+                {
+                    <CascadingValue Value="this.AppState">
+                         @Body
+                    </CascadingValue>
+                }
             </div>
             <footer class="footer">
                 <div class=" container-fluid ">
@@ -168,19 +173,19 @@
 
     protected override void OnInitialized()
     {
-        if ((AppState.CurrentUser == null || AppState.CurrentUser.UserProfileKey == 0) && !NavManager.Uri.ToUpper().Contains("/LOGIN"))
-        {
-            AppState.SetProperty(this, "CurrentUser", new());
-            try
-            {
-                NavManager.NavigateTo("/Login");
-            }
-            catch (Exception)
-            {
-                
-                throw;
-            }
-        }
+        //if ((AppState.CurrentUser == null || AppState.CurrentUser.UserProfileKey == 0) && !NavManager.Uri.ToUpper().Contains("/LOGIN") && !NavManager.Uri.ToUpper().Contains("/TICKETSURVEY"))
+        //{
+        //    AppState.SetProperty(this, "CurrentUser", new());
+        //    try
+        //    {
+        //        NavManager.NavigateTo("/Login");
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
         dialogService.OnClose += ReloadPage;
         theTimer.Elapsed += (sender, eventsArgs) => OnTimerCallBack();
         theTimer.Start();

@@ -867,14 +867,15 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 END CATCH
 GO
 
+
 CREATE   PROCEDURE [dbo].[SurveyItem_UPTIN]
 (
-       @SurveyItemKey INT 
+       @SurveyItemKey INT,
 	   @SurveyQuestionKey INT,
 	   @SurveyRating INT,
 	   @Comments VARCHAR(1000),
 	   @TicketKey INT,
-	   @UserProfileKey INT,
+	   @UserProfileKey INT
 )
 
 AS
@@ -892,12 +893,11 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 	ELSE
 	BEGIN
 		UPDATE SurveyItem SET 
-			SurveyItemKey = @SurveyItemKey, 
 			SurveyQuestionKey = @SurveyQuestionKey, 
 			SurveyRating=@SurveyRating,
-			Comments= @Comments 
+			Comments= @Comments,
 			TicketKey = @TicketKey, 
-			UserProfileKey=@UserProfileKey,
+			UserProfileKey=@UserProfileKey
 		WHERE SurveyItemKey= @SurveyItemKey
 		SELECT @SurveyItemKey
 	END

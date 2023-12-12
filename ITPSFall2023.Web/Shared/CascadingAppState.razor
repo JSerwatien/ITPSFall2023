@@ -11,7 +11,8 @@
     private string Caller = "";
     public int TimeToLiveInSeconds { get; set; } = 60;
     public DateTime LastAccessed { get; set; } = DateTime.Now;
-
+    public string UserName { get; set; }
+    public string PassWord { get; set; }
     public void SetProperty(ComponentBase caller, string PropertyName,
                             object PropertyValue, bool SaveChanges = true)
     {
@@ -83,7 +84,7 @@
         if (firstRender) // do this only once
         {
             dialogService.OnClose += DialogPopupClosed;
-            //PopLogin();
+            PopLogin();
             await InvokeAsync(StateHasChanged);
         }
     }

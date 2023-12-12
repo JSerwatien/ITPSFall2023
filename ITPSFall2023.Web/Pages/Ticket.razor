@@ -214,4 +214,11 @@
             PageModel.ErrorObject = ex;
         }
     }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if(firstRender)
+        {
+            if (AppState.CurrentUser != null) { AppState.SetProperty(this, "CurrentUser", ITPSFall2023.Data.Code.UserFactory.GetUserInformation(AppState.CurrentUser.UserName, AppState.CurrentUser.Password)); }
+        }
+    }
 }

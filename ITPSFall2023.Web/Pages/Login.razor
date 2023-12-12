@@ -14,8 +14,8 @@
     <!-- Outer Row -->
     <div class="row justify-content-center">
         <div class="col-xl-10 col-lg-12 col-md-9">
-        <Radzen.Blazor.RadzenDialog/>
-        <radzen.Blazor.Radzen.Blazor.RadzenNotification/>
+            <Radzen.Blazor.RadzenDialog />
+            <radzen.Blazor.Radzen.Blazor.RadzenNotification />
             <div class="card o-hidden border-0 shadow-lg my-5">
                 <div class="card-body p-0">
 
@@ -39,9 +39,9 @@
                                     <center>
                                         <Radzen.Blazor.RadzenButton Icon="person" Text="Login" Click="@LogUserIn" />
                                         <br />
-                                        <a href="JavaScript: void(0)" onclick="@PopForgotPassword">Forgot Password?</a> 
+                                        <a href="JavaScript: void(0)" onclick="@PopForgotPassword">Forgot Password?</a>
                                         <br />
-                                        <RadzenCheckBox @bind-Value="RememberMe"/>Remember Me?
+                                        <RadzenCheckBox @bind-Value="RememberMe" />Remember Me?
                                     </center>
                                     <hr>
                                 </form>
@@ -63,36 +63,31 @@
     private const string UserCookieName = "CurrentUserInformation";
     private string CookieValue = string.Empty;
     bool RememberMe = false;
-    private string pageReferrer;
     protected override void OnInitialized()
     {
-        AppState.SetProperty(this,"CurrentUser", new ITPSFall2023.Entity.UserEntity());
-        GetReferrer();
-    }
-    private async Task GetReferrer()
-    {
-        pageReferrer = await JsRuntime.InvokeAsync<string>("getPageReferrer", null);
-        if (string.IsNullOrEmpty(pageReferrer)) { pageReferrer = "/"; }
+        AppState.SetProperty(this, "CurrentUser", new ITPSFall2023.Entity.UserEntity());
     }
     private async void TryAutoLogin()
     {
         try
         {
-            CookieValue = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", UserCookieName);
+           
+                CookieValue = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", UserCookieName);
 
-            //cookieValue = ITPS.Data.Code.EncryptionFactory.EncryptString("joshs|joshs");
-            if(!string.IsNullOrEmpty(CookieValue))
-            {
-                CookieValue = ITPSFall2023.Data.Code.EncryptionFactory.DecryptString(CookieValue);
-                if (!string.IsNullOrEmpty(CookieValue))
+                //cookieValue = ITPS.Data.Code.EncryptionFactory.EncryptString("joshs|joshs");
+                if (!string.IsNullOrEmpty(CookieValue) && CookieValue != "|")
                 {
-                    var userArray = CookieValue.Split("|");
-                    UserName = userArray[0].ToString();
-                    Password = userArray[1].ToString();
-                    RememberMe = true;
-                    LogUserIn();
+                    CookieValue = ITPSFall2023.Data.Code.EncryptionFactory.DecryptString(CookieValue);
+                    if (!string.IsNullOrEmpty(CookieValue))
+                    {
+                        var userArray = CookieValue.Split("|");
+                        UserName = userArray[0].ToString();
+                        Password = userArray[1].ToString();
+                        RememberMe = true;
+                        LogUserIn();
+                    }
                 }
-            }
+            
         }
         catch (Exception ex)
         {
@@ -101,7 +96,7 @@
     }
     private async void ReadCookie(string cookieName)
     {
-        CookieValue= await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", cookieName);
+        CookieValue = await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", cookieName);
         //var returnValue= await cookieFactory.ReadCookie(cookieName);
         //return returnValue;
     }
@@ -116,14 +111,16 @@
         AppState.SetProperty(this, "CurrentUser", ITPSFall2023.Data.Code.UserFactory.GetUserInformation(UserName, Password));
         RefreshMainLayout();
         if (string.IsNullOrEmpty(AppState.CurrentUser.ErrorMessage))
-        { 
-            if(RememberMe){ SaveCookie(); }
+        {
+            AppState.UserName = UserName;
+            AppState.PassWord = Password;
+            if (RememberMe) { SaveCookie(); }
             NavManager.NavigateTo("/");
         }
         else
         { notificationService.Notify(Radzen.NotificationSeverity.Error, "Error Logging In", AppState.CurrentUser.ErrorMessage, 3000); }
     }
-    
+
     private async void RefreshMainLayout()
     {
         await InvokeAsync(StateHasChanged);
