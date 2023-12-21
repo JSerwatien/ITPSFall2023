@@ -961,7 +961,7 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 	AND T.CreatedDateTime <= @ThruDate
 	AND S.ClosedInd = ISNULL(@ClosedInd, s.ClosedInd)
 
-	SELECT D.Department, AVG(CAST(T.DateCompleted - T.CreatedDateTime AS INT)) DaysToCompleteion 
+	SELECT D.Department, AVG(CAST(T.DateCompleted - T.CreatedDateTime AS INT)) DaysToCompletion 
 	FROM	Ticket T WITH(NOLOCK)
 	INNER JOIN UserProfile U WITH(NOLOCK)
 	ON U.UserProfileKey = T.UserProfileKey

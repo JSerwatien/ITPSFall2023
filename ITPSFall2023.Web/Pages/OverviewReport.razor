@@ -20,8 +20,12 @@
     }
     <div class="row">
         <div class="col-md-6">
-            <RadzenChart Style="float:left">
-                <RadzenColumnSeries Data="@PageModel.DepartmentCompletionData" CategoryProperty="DisplayValue" ValueProperty="DataCount" />
+            <RadzenChart Style="float:left; width:100%">
+                @foreach (OverviewChartEntity newItem in PageModel.DepartmentCompletionData)
+                {
+                    <RadzenColumnSeries Title="@newItem.DisplayValue" Data="@PageModel.DepartmentCompletionData.Where(x => x.DisplayValue == newItem.DisplayValue)" CategoryProperty="DisplayValue" ValueProperty="DataCount" />
+                }
+
             </RadzenChart>
         </div>
         <div class="col-md-6">
