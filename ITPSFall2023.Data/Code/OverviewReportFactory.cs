@@ -19,7 +19,7 @@ namespace ITPSFall2023.Data.Code
             {
                 strSQL = string.Format(strSQL, fromDate, thruDate, closedInd < 0 ? "null" : closedInd);
                 ds = DataFactory.GetDataSet(strSQL, "OverviewReportData", currentUser);
-                //returnData.DetailData = LoadDetailData(ds.Tables[0]);
+                returnData.DetailData = LoadDetailData(ds.Tables[0]);
                 returnData.DepartmentCompletionData = LoadDepartmentCompletionData(ds.Tables[1]);
             }
             catch (Exception ex)
@@ -44,7 +44,25 @@ namespace ITPSFall2023.Data.Code
 
         private static List<TicketEntity> LoadDetailData(DataTable dataTable)
         {
-            throw new NotImplementedException();
+            
+            List<TicketEntity> returnData = new();
+            foreach(DataRow newRow in dataTable.Rows)
+            {
+                TicketEntity newItem = new();
+                newItem.TicketKey = Convert.ToInt32(newRow["TicketKey"]);
+                newItem.ShortDescription = newRow["ShortDescription"].ToString();
+                newItem.Priority = Convert.ToInt32(newRow["Priority"]);
+                newItem.CreatedDateTime = Convert.ToDateTime(newRow["DateEntered"]);
+                newItem.StatusCode = newRow["StatusCode"].ToString();
+                newItem.Status = newRow["Description"].ToString();
+                newItem.AssignedToDisplayName = newRow["AssignedTo"].ToString();
+                newItem.Department = newRow["Department"].ToString();
+                returnData.Add(newItem);
+               
+            }
+
+            return returnData;
+
         }
     }
 }

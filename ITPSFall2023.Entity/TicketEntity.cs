@@ -26,6 +26,7 @@ namespace ITPSFall2023.Entity
         public string StatusCode { get; set; }
         public bool StatusIsClosed { get; set; }
         public DateTime DueDate { get; set; }
+        public string Department { get; set; }
         public DateTime CreatedDateTime { get; set; }
         public string CreatedBy { get; set; }
         public DateTime LastUpdatedDateTime { get; set; }

@@ -933,6 +933,7 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
                                    1,@ErrorNumber,@ErrorSeverity,@ErrorState,@ErrorProcedure,@ErrorLine);
 END CATCH
 GO
+
 CREATE OR ALTER   PROCEDURE [dbo].[OverviewReport_GetData]
 (
 	   @FromDate Date,
@@ -947,7 +948,7 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 	BEGIN TRY
 	
 	
-	SELECT T.TicketKey, T.ShortDescription, t.Priority, t.CreatedDateTime as DateEntered, s.StatusCode,  (U.FirstName+ ' ' + U.LastName) AS AssignedTo, D.Department
+	SELECT T.TicketKey, T.ShortDescription, t.Priority, t.CreatedDateTime as DateEntered, s.StatusCode, S.Description, (U.FirstName+ ' ' + U.LastName) AS AssignedTo, D.Department
 	FROM DBO.Ticket T WITH(NOLOCK)
 	INNER JOIN DBO.UserProfile UP WITH(NOLOCK)
 	ON UP.UserProfileKey = T.UserProfileKey
@@ -997,3 +998,4 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
                                    1,@ErrorNumber,@ErrorSeverity,@ErrorState,@ErrorProcedure,@ErrorLine);
 END CATCH
 GO
+
