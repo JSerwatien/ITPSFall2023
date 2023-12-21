@@ -19,7 +19,7 @@
         </div>
     }
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6" style="background-color:white">
             <RadzenChart Style="float:left; width:100%">
                 @foreach (OverviewChartEntity newItem in PageModel.DepartmentCompletionData)
                 {
@@ -28,7 +28,8 @@
 
             </RadzenChart>
         </div>
-        <div class="col-md-6">
+
+        <div class="col-md-6" style="background-color:white">
             <h3>Filter Bank</h3>
             <div class="row">
                 <div class="col-md-6">
@@ -68,16 +69,24 @@
         <div class="col-md-12">
             <center>
                 <RadzenDataGrid @ref="ticketGrid" AllowGrouping="true" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
-                                Data="@PageModel.DetailData" TItem="TicketEntity">
+                                Data="@PageModel.DetailData" TItem="TicketEntity" AllowColumnPicking="true" AllowPickAllColumns="true">
                     <Columns>
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="TicketKey" Title="Ticket Key" />
+                        <RadzenDataGridColumn TItem="TicketEntity" Title="Ticket Key">
+                            <Template Context="data">
+                                <a href="/Ticket/@data.TicketKey">@data.TicketKey</a>
+                            </Template>
+                        </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="TicketEntity" Property="ShortDescription" Title="Short Description" />
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="Priority" Title="Priority" />
+                        <RadzenDataGridColumn TItem="TicketEntity" Title="Priority" Groupable="true">
+                            <Template Context="data">
+                                <a href="#">@data.Priority</a>
+                            </Template>
+                        </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="TicketEntity" Property="CreatedDateTime" Title="Date Entered" />
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="StatusCode" Title="Status Code" />
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="Status" Title="Status" />
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="AssignedToDisplayName" Title="AssignedTo" />
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="Department" Title="Department" />
+                        <RadzenDataGridColumn TItem="TicketEntity" Property="StatusCode" Title="Status Code" Visible="false" Groupable="true" />
+                        <RadzenDataGridColumn TItem="TicketEntity" Property="Status" Title="Status" Groupable="true" />
+                        <RadzenDataGridColumn TItem="TicketEntity" Property="AssignedToDisplayName" Title="AssignedTo" Groupable="true" />
+                        <RadzenDataGridColumn TItem="TicketEntity" Property="Department" Title="Department" Groupable="true" />
                     </Columns>
                 </RadzenDataGrid>
             </center>
