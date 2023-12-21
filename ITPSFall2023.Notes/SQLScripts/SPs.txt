@@ -933,7 +933,6 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
                                    1,@ErrorNumber,@ErrorSeverity,@ErrorState,@ErrorProcedure,@ErrorLine);
 END CATCH
 GO
-
 CREATE OR ALTER   PROCEDURE [dbo].[OverviewReport_GetData]
 (
 	   @FromDate Date,
@@ -961,6 +960,14 @@ DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
 	WHERE T.CreatedDateTime > @FromDate
 	AND T.CreatedDateTime <= @ThruDate
 	AND S.ClosedInd = ISNULL(@ClosedInd, s.ClosedInd)
+
+	SELECT D.Department, AVG(CAST(T.DateCompleted - T.CreatedDateTime AS INT)) DaysToCompleteion 
+	FROM	Ticket T WITH(NOLOCK)
+	INNER JOIN UserProfile U WITH(NOLOCK)
+	ON U.UserProfileKey = T.UserProfileKey
+	INNER JOIN Department D WITH(NOLOCK)
+	ON D.DepartmentKey = U.DepartmentKey
+	GROUP BY D.Department
 
 	END TRY
 

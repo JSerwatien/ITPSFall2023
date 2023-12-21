@@ -22,43 +22,43 @@
             @if (AppState.CurrentUser != null && AppState.CurrentUser.UserProfileKey > 0)
             {
                 <ul class="nav">
-                    <li class="active ">
+                    <li class="@GetLinkActiveClass("/index")">
                         <a href="/">
                             <i class="now-ui-icons design_app"></i>
                             <p>Home</p>
                         </a>
                     </li>
-                    <li>
+                    <li class="@GetLinkActiveClass("/ticket/")">
                         <a href="/Ticket/0">
                             <i class="now-ui-icons ui-1_simple-add"></i>
                             <p>Add New Ticket</p>
                         </a>
                     </li>
-                    <li>
+                    <li class="@GetLinkActiveClass("/SendNotification")">
                         <a href="/SendNotification">
                             <i class="now-ui-icons ui-1_send"></i>
                             <p>Send Notification</p>
                         </a>
                     </li>
-                    <li>
+                    <li class="@GetLinkActiveClass("/Notifications")">
                         <a href="/Notifications">
                             <i class="now-ui-icons ui-1_email-85"></i>
                             <p>View Notifications</p>
                         </a>
                     </li>
-                    <li>
+                    <li class="@GetLinkActiveClass("/TicketCalendar")">
                         <a href="/TicketCalendar">
                             <i class="now-ui-icons ui-1_calendar-60"></i>
                             <p>Ticket Calendar</p>
                         </a>
                     </li>
-                    <li>
+                    <li class="@GetLinkActiveClass("/OverviewReport")">
                         <a href="/OverviewReport">
                             <i class="now-ui-icons education_paper"></i>
                             <p>Overview Report</p>
                         </a>
                     </li>
-                    <li>
+                    <li class="@GetLinkActiveClass("/Priorities")">
                         <a href="./priorities.html">
                             <i class="now-ui-icons ui-2_time-alarm"></i>
                             <p>Priorities</p>
@@ -167,8 +167,8 @@
     </main>
 </div>
 @code {
-    [CascadingParameter]
-    public CascadingAppState AppState { get; set; }
+        [CascadingParameter]
+        public CascadingAppState AppState { get; set; }
     private string JumpToTicketKey = string.Empty;
     private string searchMessage;
     private string PageMessage = string.Empty;
@@ -269,5 +269,14 @@
     private async void LogOut()
     {
         await JsRuntime.InvokeAsync<string>("Cookies.deleteCookie", UserCookieName);
+    }
+    private string GetLinkActiveClass(string pageIndicator)
+    {
+        if(NavManager.Uri.ToString().ToUpper().Contains(pageIndicator.ToUpper()))
+        { return "active "; }
+        else if (pageIndicator.ToUpper() == "/INDEX" && NavManager.Uri.ToString().ToUpper().EndsWith("/"))
+        { return "active "; }
+        else
+        { return string.Empty; }
     }
 }

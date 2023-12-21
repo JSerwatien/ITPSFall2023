@@ -75,6 +75,8 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    public CascadingAppState AppState { get; set; }
     private OverviewReportEntity PageModel = new();
     private RadzenDataGrid<TicketEntity> ticketGrid;
     private DateTime FromDate = @DateTime.Now.AddMonths(1);
@@ -91,8 +93,21 @@
         { StatusState = "Show Closed"; }
         StateHasChanged();
     }
+    protected override void OnInitialized()
+    {
+        ReloadModel();
+    }
     private void ReloadModel()
     {
-
+        PageModel = OverviewReportFactory.LoadReportData(FromDate, ThruDate, GetShowOpenStatus(), AppState.CurrentUser);
+    }
+    private int GetShowOpenStatus()
+    {
+        if(ShowOpenStatus == null)
+        { return -1; }
+        else if (ShowOpenStatus==true)
+        { return 1; }
+        else
+        { return 0; }
     }
 }
