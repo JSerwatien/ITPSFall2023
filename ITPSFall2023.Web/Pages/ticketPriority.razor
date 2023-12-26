@@ -48,18 +48,18 @@
     public CascadingAppState AppState { get; set; }
     private TicketPriorityEntity PageModel { get; set; }
     private RadzenDataGrid<TicketEntity> ticketGrid;
+    private List<int> ChangedTickets = new();
     private void ReloadModel()
     {
         PageModel = TicketFactory.LoadTicketPriorityEntity(AppState.CurrentUser);
     }
     private void SortGrid(int ticketKey)
-    {}
+    {
+        //Log ticket key to ChangedTickets (if it's not there already)
+        //Resort grid for display
+    }
     protected override void OnInitialized()
     {
         ReloadModel();
     }
-
-
-
-
 }

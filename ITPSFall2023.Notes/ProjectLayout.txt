@@ -167,8 +167,14 @@ Notes:
 	Template:	https://demos.creative-tim.com/now-ui-dashboard/examples/dashboard.html?_ga=2.217200534.1415108639.1697540512-1924406482.1697540512&_gl=1*g3hltm*_ga*MTkyNDQwNjQ4Mi4xNjk3NTQwNTEy*_ga_LMRL06STSS*MTY5NzU0MDUxMi4xLjEuMTY5NzU0MDU1MC4yMi4wLjA.
 Homework:
 	1)	Run SPs:
+		a)	TicketPriority_SEL
 	2)	Documentation: Start laying out text (Racheli & Chaya)
-	3)	Profile Page
+	3)	HW:	Ticket Priority page:
+		a)	Log tickets that change  (Racheli & Chaya)
+		b)	Have grid re-sort on priority change (Racheli & Chaya)
+		c)	Add button to page to allow saving of logged tickets (set visibility & PageMessage) (#a) (Professor)
+	4)	Profile Page (next week)
+
 
 
 
