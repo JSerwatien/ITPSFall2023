@@ -1,0 +1,65 @@
+﻿@page "/TicketPriority"
+@inject Radzen.DialogService dialogService
+@using Radzen
+@using ITPSFall2023.Entity
+@using ITPSFall2023.Data.Code
+<div class="container-fluid" style="width:1500px !important">
+    <br />
+    <br />
+    @if (!string.IsNullOrEmpty(PageModel?.PageMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @PageModel.PageMessage
+        </div>
+    }
+    @if (PageModel?.ErrorObject != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @PageModel.ErrorObject.Message
+        </div>
+    }
+     <RadzenDataGrid @ref="ticketGrid" AllowGrouping="true" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+                                Data="@PageModel.TicketEntities" TItem="TicketEntity" AllowColumnPicking="true" AllowPickAllColumns="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="TicketEntity" Title="Ticket Key">
+                            <Template Context="data">
+                                <a href="/Ticket/@data.TicketKey">@data.TicketKey</a>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="TicketEntity" Property="ShortDescription" Title="Short Description" />
+                        <RadzenDataGridColumn TItem="TicketEntity" Property="LongDescription" Title="Description" />
+                        <RadzenDataGridColumn TItem="TicketEntity" Property="AssignedToDisplayName" Title="Assigned To" Groupable="true" />
+                        <RadzenDataGridColumn TItem="TicketEntity" Property="TicketOwnerDisplayName" Title="Owner" Groupable="true" />
+                        <RadzenDataGridColumn TItem="TicketEntity" Property="DueDate" Title="Due-Date" Groupable="true" FormatString="{0:yyyy-MM-dd}"/>
+                        <RadzenDataGridColumn TItem="TicketEntity" Property="Status" Title="Status" Groupable="true" />
+                       <RadzenDataGridColumn TItem="TicketEntity" Title="Priority">
+                                <Template Context="TheData">
+                                    <RadzenNumeric @bind-Value=@TheData.Priority Min="1" TValue="int" Max="@PageModel.TicketEntities.Count" Change=@(args => SortGrid(TheData.TicketKey)) />
+                                </Template>
+                            </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+</div>
+
+
+
+@code {
+    [CascadingParameter]
+    public CascadingAppState AppState { get; set; }
+    private TicketPriorityEntity PageModel { get; set; }
+    private RadzenDataGrid<TicketEntity> ticketGrid;
+    private void ReloadModel()
+    {
+        PageModel = TicketFactory.LoadTicketPriorityEntity(AppState.CurrentUser);
+    }
+    private void SortGrid(int ticketKey)
+    {}
+    protected override void OnInitialized()
+    {
+        ReloadModel();
+    }
+
+
+
+
+}

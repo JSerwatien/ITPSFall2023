@@ -346,5 +346,26 @@ namespace ITPSFall2023.Data.Code
             returnData.Add(newItem);
             return returnData;
         }
+
+        public static TicketPriorityEntity LoadTicketPriorityEntity(UserEntity currentUser)
+        {
+            TicketPriorityEntity returnData = new();
+            string strSQL = "EXEC dbo.TicketPriority_SEL " + currentUser.UserProfileKey;
+            DataSet ds = new();
+            try
+            {
+                ds = DataFactory.GetDataSet(strSQL, "TicketData", currentUser);
+                returnData.TicketEntities = new();
+                foreach (DataRow row in ds.Tables[0].Rows) 
+                {
+                    returnData.TicketEntities.Add(LoadSummaryTicketFromDataRow(row));
+                }
+            }
+            catch (Exception ex) 
+            {
+                returnData.ErrorObject= ex;
+            }
+            return returnData;
+        }
     }
 }
