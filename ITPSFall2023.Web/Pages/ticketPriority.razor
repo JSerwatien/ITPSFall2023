@@ -18,6 +18,8 @@
             @PageModel.ErrorObject.Message
         </div>
     }
+    <RadzenButton Text="Save" Icon="save" ButtonStyle="ButtonStyle.Success" Visible="@SetSaveButtonVisible()" Style="float:right" Click="() => SaveChanges()"></RadzenButton>
+    <br /><br/>
      <RadzenDataGrid @ref="ticketGrid" AllowGrouping="true" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
                                 Data="@PageModel.TicketEntities" TItem="TicketEntity" AllowColumnPicking="true" AllowPickAllColumns="true">
                     <Columns>
@@ -48,7 +50,7 @@
     public CascadingAppState AppState { get; set; }
     private TicketPriorityEntity PageModel { get; set; }
     private RadzenDataGrid<TicketEntity> ticketGrid;
-    private List<int> ChangedTickets = new();
+    private List<int> ChangedTicketKeys = new();
     private void ReloadModel()
     {
         PageModel = TicketFactory.LoadTicketPriorityEntity(AppState.CurrentUser);
@@ -62,4 +64,32 @@
     {
         ReloadModel();
     }
+    private void SaveChanges()
+    {
+        List<string> errorMessages = new();
+        try
+        {
+            PageModel.PageMessage = string.Empty;
+            PageModel.ErrorObject=null;
+            foreach(int i in ChangedTicketKeys)
+            {
+                var currentTicket = PageModel.TicketEntities.Where(x => x.TicketKey == i).FirstOrDefault();
+                currentTicket = TicketFactory.SaveTicket(currentTicket, AppState.CurrentUser);
+                if(currentTicket.ErrorObject!= null)
+                {errorMessages.Add("There was an error updating ticket #" + currentTicket.TicketKey + ": " + currentTicket.ErrorObject.Message);}
+            }
+            if(errorMessages.Count==0)
+            { PageModel.PageMessage = "Your tickets were updated successfully!"; }
+            else
+            { PageModel.ErrorObject = new("There was a problem saving some of your information: " + string.Join(";", errorMessages)); }
+        }
+        catch (Exception ex)
+        {
+            PageModel.ErrorObject = new(ex.Message);
+        }
+    }
+        private bool SetSaveButtonVisible ()
+        {
+            return ChangedTicketKeys.Count > 0;
+        }
 }
