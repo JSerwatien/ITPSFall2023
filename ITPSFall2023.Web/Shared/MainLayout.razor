@@ -58,8 +58,8 @@
                             <p>Overview Report</p>
                         </a>
                     </li>
-                    <li class="@GetLinkActiveClass("/TicketPriority")">
-                        <a href="/TicketPriority">
+                    <li class="@GetLinkActiveClass("/Priorities")">
+                        <a href="./priorities.html">
                             <i class="now-ui-icons ui-2_time-alarm"></i>
                             <p>Priorities</p>
                         </a>
@@ -167,8 +167,8 @@
     </main>
 </div>
 @code {
-    [CascadingParameter]
-    public CascadingAppState AppState { get; set; }
+        [CascadingParameter]
+        public CascadingAppState AppState { get; set; }
     private string JumpToTicketKey = string.Empty;
     private string searchMessage;
     private string PageMessage = string.Empty;
