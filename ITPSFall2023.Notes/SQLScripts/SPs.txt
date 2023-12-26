@@ -1007,25 +1007,25 @@ CREATE OR ALTER       PROCEDURE [dbo].[TicketPriority_SEL]
 
 AS
 
-		DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
-		BEGIN TRY
-		DECLARE @DepartmentKey INT
-		SELECT @DepartmentKey = DepartmentKey FROM UserProfile WITH(NOLOCK) WHERE UserProfileKey = @UserProfileKey
+DECLARE @InsertToErrorLog BIT= 1,@PrintError BIT = 0, @RaiseError BIT = 1
+BEGIN TRY
+DECLARE @DepartmentKey INT
+SELECT @DepartmentKey = DepartmentKey FROM UserProfile WITH(NOLOCK) WHERE UserProfileKey = @UserProfileKey
 
-	
-	
 
-		SELECT  T.*, S.Description Status, S.StatusCode, U.FirstName AssignedToFirstName, U.LastName AssignedToLastName
-		FROM Ticket T WITH(NOLOCK)
-		INNER JOIN Status S WITH(NOLOCK)
-		ON S.StatusKey = T.StatusKey
-		INNER JOIN UserProfile U WITH(NOLOCK)
-		ON U.UserProfileKey = T.AssignedToUserProfileKey
-		WHERE T.AssignedToUserProfileKey = @UserProfileKey
-		AND S.ClosedInd = 0
-		AND U.DepartmentKey = @DepartmentKey
 
-        
+
+SELECT  T.*, S.Description Status, S.StatusCode, U.FirstName AssignedToFirstName, U.LastName AssignedToLastName
+FROM Ticket T WITH(NOLOCK)
+INNER JOIN Status S WITH(NOLOCK)
+ON S.StatusKey = T.StatusKey
+INNER JOIN UserProfile U WITH(NOLOCK)
+ON U.UserProfileKey = T.AssignedToUserProfileKey
+WHERE T.AssignedToUserProfileKey = @UserProfileKey
+AND S.ClosedInd = 0
+AND U.DepartmentKey = @DepartmentKey
+
+       
 END TRY
 
   BEGIN CATCH
