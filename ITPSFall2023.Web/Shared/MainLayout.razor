@@ -297,16 +297,17 @@
     {
         var result = await dialogService.OpenAsync("Profile", ds =>
     @<RadzenStack Gap="1.5rem">
-        <section class="vh-50" style="background-color: #f4f5f7; wdith:1000px">
+        <section class="vh-50" style="background-color: #f4f5f7">
             <div class="container py-5 h-50">
-                <div class="row d-flex justify-content-center align-items-center h-100">
+            <center>
+                <div class="row d-flex h-100 justify-content-center !important align-items-center !important" style="width:95% !important">
                     <div class="col col-lg-12 mb-12 mb-lg-0">
                         <div class="card mb-3 align-items-center" style="border-radius: .5rem;">
                             <div class="row g-0">
                                 <div class="col-md-4 gradient-custom text-center text-white"
                                      style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
                                     <img src="/img/default-avatar.png"
-                                         alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                                             alt="Avatar" class="rounded-circle img-fluid my-5" style="width: 80px;" />
                                     <h5>@AppState.CurrentUser.DisplayName</h5>
                                     <p>@AppState.CurrentUser.Department</p>
                                     <i class="far fa-edit mb-5"></i>
@@ -318,11 +319,12 @@
                                         <div class="row pt-1">
                                             <div class="col-6 mb-3">
                                                 <h6>Email</h6>
-                                                <p class="text-muted">@AppState.CurrentUser.EmailAddress</p>
+                                                    <a href="mailto:@AppState.CurrentUser.EmailAddress" class="text-muted">@AppState.CurrentUser.EmailAddress</a>
                                             </div>
                                             <div class="col-6 mb-3">
                                                 <h6>Phone</h6>
-                                                <p class="text-muted">@AppState.CurrentUser.PhoneNumber</p>
+                                                    <p class="text-muted">
+                                                        @string.Format("{0:(###) ###-####}", Convert.ToInt64(AppState.CurrentUser.PhoneNumber))</p>
                                             </div>
                                         </div>
                                         <h6>Projects</h6>
@@ -337,7 +339,7 @@
                                                 <p class="text-muted">@AppState.CurrentUser.LastRefreshed</p>
                                             </div>
                                         </div>
-                                        <div class="d-flex justify-content-start">
+                                        <div class="d-flex justify-content-start" style="float:right">
                                             <a href="#!"><i class="fab fa-facebook-f fa-lg me-3"></i></a>
                                             &nbsp;
                                             <a href="#!"><i class="fab fa-twitter fa-lg me-3"></i></a>
@@ -350,9 +352,10 @@
                         </div>
                     </div>
                 </div>
+                </center>
             </div>
         </section>
-    </RadzenStack>, new DialogOptions(){ Width="1000px"});
+    </RadzenStack>, new DialogOptions(){ Width="1100px"});
     }
 
 }
