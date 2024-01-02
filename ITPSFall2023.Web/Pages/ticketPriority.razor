@@ -19,28 +19,28 @@
         </div>
     }
     <RadzenButton Text="Save" Icon="save" ButtonStyle="ButtonStyle.Success" Visible="@SetSaveButtonVisible()" Style="float:right" Click="() => SaveChanges()"></RadzenButton>
-    <br /><br/>
-     <RadzenDataGrid @ref="ticketGrid" AllowGrouping="true" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
-                                Data="@PageModel.TicketEntities" TItem="TicketEntity" AllowColumnPicking="true" AllowPickAllColumns="true">
-                    <Columns>
-                        <RadzenDataGridColumn TItem="TicketEntity" Title="Ticket Key">
-                            <Template Context="data">
-                                <a href="/Ticket/@data.TicketKey">@data.TicketKey</a>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="ShortDescription" Title="Short Description" />
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="LongDescription" Title="Description" />
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="AssignedToDisplayName" Title="Assigned To" Groupable="true" />
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="TicketOwnerDisplayName" Title="Owner" Groupable="true" />
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="DueDate" Title="Due-Date" Groupable="true" FormatString="{0:yyyy-MM-dd}"/>
-                        <RadzenDataGridColumn TItem="TicketEntity" Property="Status" Title="Status" Groupable="true" />
-                       <RadzenDataGridColumn TItem="TicketEntity" Title="Priority">
-                                <Template Context="TheData">
-                                    <RadzenNumeric @bind-Value=@TheData.Priority Min="1" TValue="int" Max="@PageModel.TicketEntities.Count" Change=@(args => SortGrid(TheData.TicketKey)) />
-                                </Template>
-                            </RadzenDataGridColumn>
-                    </Columns>
-                </RadzenDataGrid>
+    <br /><br />
+    <RadzenDataGrid @ref="ticketGrid" AllowGrouping="true" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+                    Data="@PageModel.TicketEntities" TItem="TicketEntity" AllowColumnPicking="true" AllowPickAllColumns="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="TicketEntity" Title="Ticket Key">
+                <Template Context="data">
+                    <a href="/Ticket/@data.TicketKey">@data.TicketKey</a>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="TicketEntity" Property="ShortDescription" Title="Short Description" />
+            <RadzenDataGridColumn TItem="TicketEntity" Property="LongDescription" Title="Description" />
+            <RadzenDataGridColumn TItem="TicketEntity" Property="AssignedToDisplayName" Title="Assigned To" Groupable="true" />
+            <RadzenDataGridColumn TItem="TicketEntity" Property="TicketOwnerDisplayName" Title="Owner" Groupable="true" />
+            <RadzenDataGridColumn TItem="TicketEntity" Property="DueDate" Title="Due-Date" Groupable="true" FormatString="{0:yyyy-MM-dd}" />
+            <RadzenDataGridColumn TItem="TicketEntity" Property="Status" Title="Status" Groupable="true" />
+            <RadzenDataGridColumn TItem="TicketEntity" Title="Priority">
+                <Template Context="TheData">
+                    <RadzenNumeric @bind-Value=@TheData.Priority Min="1" TValue="int" Max="@PageModel.TicketEntities.Count" Change=@(args => SortGrid(TheData.TicketKey)) />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
 </div>
 
 
@@ -57,8 +57,14 @@
     }
     private void SortGrid(int ticketKey)
     {
-        //Log ticket key to ChangedTickets (if it's not there already)
-        //Resort grid for display
+        LogTicketChange(ticketKey);
+        PageModel.TicketEntities = PageModel.TicketEntities.OrderBy(x => x.Priority).ToList();
+        StateHasChanged();
+    }
+    private void LogTicketChange(int ticketKey)
+    {
+        if (!ChangedTicketKeys.Contains(ticketKey))
+        { ChangedTicketKeys.Add(ticketKey); }
     }
     protected override void OnInitialized()
     {
@@ -70,15 +76,15 @@
         try
         {
             PageModel.PageMessage = string.Empty;
-            PageModel.ErrorObject=null;
-            foreach(int i in ChangedTicketKeys)
+            PageModel.ErrorObject = null;
+            foreach (int i in ChangedTicketKeys)
             {
                 var currentTicket = PageModel.TicketEntities.Where(x => x.TicketKey == i).FirstOrDefault();
                 currentTicket = TicketFactory.SaveTicket(currentTicket, AppState.CurrentUser);
-                if(currentTicket.ErrorObject!= null)
-                {errorMessages.Add("There was an error updating ticket #" + currentTicket.TicketKey + ": " + currentTicket.ErrorObject.Message);}
+                if (currentTicket.ErrorObject != null)
+                { errorMessages.Add("There was an error updating ticket #" + currentTicket.TicketKey + ": " + currentTicket.ErrorObject.Message); }
             }
-            if(errorMessages.Count==0)
+            if (errorMessages.Count == 0)
             { PageModel.PageMessage = "Your tickets were updated successfully!"; }
             else
             { PageModel.ErrorObject = new("There was a problem saving some of your information: " + string.Join(";", errorMessages)); }
@@ -88,8 +94,8 @@
             PageModel.ErrorObject = new(ex.Message);
         }
     }
-        private bool SetSaveButtonVisible ()
-        {
-            return ChangedTicketKeys.Count > 0;
-        }
+    private bool SetSaveButtonVisible()
+    {
+        return ChangedTicketKeys.Count > 0;
+    }
 }
