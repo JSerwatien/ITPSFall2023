@@ -5,7 +5,16 @@
 @inject IJSRuntime JsRuntime
 @using ITPSFall2023.Data.Code
 <PageTitle>ITPSFall2023.Web</PageTitle>
-
+<style>
+    .gradient-custom {
+        /* fallback for old browsers */
+        background: #f6d365;
+        /* Chrome 10-25, Safari 5.1-6 */
+        background: -webkit-linear-gradient(to right bottom, rgba(246, 211, 101, 1), rgba(253, 160, 133, 1));
+        /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        background: linear-gradient(to right bottom, rgba(246, 211, 101, 1), rgba(253, 160, 133, 1))
+    }
+</style>
 <div class="page">
     <Radzen.Blazor.RadzenDialog />
     <RadzenNotification />
@@ -105,11 +114,14 @@
                         <div class="collapse navbar-collapse justify-content-end" id="navigation">
                             <form>
                                 <div class="input-group no-border">
-                                    <input type="text" value="" class="form-control" placeholder="Search By Ticket ID...">
+                                    <input type="text" @bind-value="@JumpToTicketKey" class="form-control" placeholder="Search By...">
                                     <div class="input-group-append">
                                         <div class="input-group-text">
-                                            <i class="now-ui-icons ui-1_zoom-bold"></i>
+                                            <a href="javascript: void(0)" onclick="@(() => SearchForTicket())">
+                                                <i class="now-ui-icons ui-1_zoom-bold"></i>
+                                            </a>
                                         </div>
+                                        <span style="color: red; font-size:10pt">@((MarkupString)searchMessage)</span>
                                     </div>
                                 </div>
                             </form>
@@ -129,7 +141,7 @@
                                     </div>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#pablo">
+                                    <a class="nav-link" href="javascript: void(0)" onclick="@(() => ShowProfileDialog())">
                                         <i class="now-ui-icons users_single-02"></i>
                                         <p>
                                             <span class="d-lg-none d-md-block">Account</span>
@@ -149,7 +161,7 @@
                 @if (AppState.CurrentUser != null && AppState.CurrentUser.UserProfileKey > 0)
                 {
                     <CascadingValue Value="this.AppState">
-                         @Body
+                        @Body
                     </CascadingValue>
                 }
             </div>
@@ -167,8 +179,10 @@
     </main>
 </div>
 @code {
-        [CascadingParameter]
-        public CascadingAppState AppState { get; set; }
+    [CascadingParameter]
+    public CascadingAppState AppState { get; set; }
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnInput { get; set; }
     private string JumpToTicketKey = string.Empty;
     private string searchMessage;
     private string PageMessage = string.Empty;
@@ -272,11 +286,73 @@
     }
     private string GetLinkActiveClass(string pageIndicator)
     {
-        if(NavManager.Uri.ToString().ToUpper().Contains(pageIndicator.ToUpper()))
+        if (NavManager.Uri.ToString().ToUpper().Contains(pageIndicator.ToUpper()))
         { return "active "; }
         else if (pageIndicator.ToUpper() == "/INDEX" && NavManager.Uri.ToString().ToUpper().EndsWith("/"))
         { return "active "; }
         else
         { return string.Empty; }
     }
+    private async Task ShowProfileDialog()
+    {
+        var result = await dialogService.OpenAsync("Profile", ds =>
+    @<RadzenStack Gap="1.5rem">
+        <section class="vh-50" style="background-color: #f4f5f7; wdith:1000px">
+            <div class="container py-5 h-50">
+                <div class="row d-flex justify-content-center align-items-center h-100">
+                    <div class="col col-lg-12 mb-12 mb-lg-0">
+                        <div class="card mb-3 align-items-center" style="border-radius: .5rem;">
+                            <div class="row g-0">
+                                <div class="col-md-4 gradient-custom text-center text-white"
+                                     style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
+                                    <img src="/img/default-avatar.png"
+                                         alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                                    <h5>@AppState.CurrentUser.DisplayName</h5>
+                                    <p>@AppState.CurrentUser.Department</p>
+                                    <i class="far fa-edit mb-5"></i>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body p-4">
+                                        <h6>Information</h6>
+                                        <hr class="mt-0 mb-4">
+                                        <div class="row pt-1">
+                                            <div class="col-6 mb-3">
+                                                <h6>Email</h6>
+                                                <p class="text-muted">@AppState.CurrentUser.EmailAddress</p>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <h6>Phone</h6>
+                                                <p class="text-muted">@AppState.CurrentUser.PhoneNumber</p>
+                                            </div>
+                                        </div>
+                                        <h6>Projects</h6>
+                                        <hr class="mt-0 mb-4">
+                                        <div class="row pt-1">
+                                            <div class="col-6 mb-3">
+                                                <h6>Notifications</h6>
+                                                <p class="text-muted">@AppState.CurrentUser.NotificationList.Count()</p>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <h6>Last Updated</h6>
+                                                <p class="text-muted">@AppState.CurrentUser.LastRefreshed</p>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-start">
+                                            <a href="#!"><i class="fab fa-facebook-f fa-lg me-3"></i></a>
+                                            &nbsp;
+                                            <a href="#!"><i class="fab fa-twitter fa-lg me-3"></i></a>
+                                            &nbsp;
+                                            <a href="#!"><i class="fab fa-instagram fa-lg"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </RadzenStack>, new DialogOptions(){ Width="1000px"});
+    }
+
 }
