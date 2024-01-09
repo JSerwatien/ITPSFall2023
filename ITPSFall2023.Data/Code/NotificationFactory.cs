@@ -37,7 +37,9 @@ namespace ITPSFall2023.Data.Code
                     newItem.NotificationTypeCode = newRow["NotificationTypeCode"].ToString();
                     newItem.CreatedBy = newRow["CreatedBy"].ToString();
                     newItem.LastUpdatedBy = newRow["NotificationValue"].ToString();
-                    newItem.CreatedDateTime = Convert.ToDateTime(newRow["CreatedDateTime"]);
+                    if (newRow["CreatedDateTime"] != DBNull.Value)
+                    { newItem.CreatedDateTime = Convert.ToDateTime(newRow["CreatedDateTime"]); }
+                   
                     if (newRow["LastUpdatedDateTime"] != DBNull.Value)
                     { newItem.LastUpdatedDateTime = Convert.ToDateTime(newRow["LastUpdatedDateTime"]); }
                     newItem.NotificationTypeKey = Convert.ToInt32(newRow["NotificationTypeKey"]);

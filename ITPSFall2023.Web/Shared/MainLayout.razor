@@ -129,14 +129,14 @@
 
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="now-ui-icons location_world"></i>
+                                        <i class="now-ui-icons ui-1_email-85"></i>
                                         <p>
                                             <span class="d-lg-none d-md-block">Some Actions</span>
                                         </p>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                                        <a class="dropdown-item" href="#">Messages <span class="badge badge-pill badge-success">@AppState.CurrentUser.NotificationList.Where(x => x.NotificationTypeCode=="MESSG").Count()</span></a>
-                                        <a class="dropdown-item" href="#">Alerts <span class="badge badge-pill badge-success">@AppState.CurrentUser.NotificationList.Where(x => x.NotificationTypeCode=="ALERT").Count()</span></a>
+                                        <a class="dropdown-item" href="/Notifications/Message">Message <span class="badge badge-pill badge-success">@AppState.CurrentUser.NotificationList.Where(x => x.NotificationTypeCode=="MESSG").Count()</span></a>
+                                        <a class="dropdown-item" href="/Notifications/Alert">Alert <span class="badge badge-pill badge-success">@AppState.CurrentUser.NotificationList.Where(x => x.NotificationTypeCode=="ALERT").Count()</span></a>
                                         <a class="dropdown-item" href="/Notifications">View All Notifications</a>
                                     </div>
                                 </li>
@@ -347,9 +347,13 @@
                                             <a href="#!"><i class="fab fa-instagram fa-lg"></i></a>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
-                        </div>
+                            </div>
+                                <RadzenButton Text="Close" Icon="close" Style="float: right" ButtonStyle="ButtonStyle.Primary" Click=@(args => dialogService.Close())></RadzenButton>
+
+                        
                     </div>
                 </div>
                 </center>
