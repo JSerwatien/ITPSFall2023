@@ -85,6 +85,8 @@
     <None Include="BlankTemplate\LICENSE.md" />
     <None Include="BlankTemplate\package.json" />
     <None Include="BlankTemplate\README.md" />
+    <None Include="Documentation\ITPS Documentation %281%29.docx" />
+    <None Include="DBBackup\ITPSFall2023.bak" />
     <None Include="Tickets.xlsx" />
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +127,9 @@
     <Content Include="SQLScripts\DBScript.sql" />
     <Content Include="SQLScripts\Inserts.sql" />
     <Content Include="SQLScripts\SPs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Presentation\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
